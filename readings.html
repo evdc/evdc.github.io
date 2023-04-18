@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>Reading List | Evan Crook</title>
+        <link rel="stylesheet" type="text/css" href="main.css"></link>
+    </head>
+
+    <body>
+
+<h1>Reading List</h1>
+
+A loose collection of things I'm reading, or want to read, or projects I think are cool.
+
+<h3> Distributed Systems, Logic Programming, Query Languages, etc.</h3>
+<ul>
+    <li><a href="http://witheve.com/">Eve</a> -- maybe the single most influential discovery of my career. Eve is a strange and wonderful and sadly abandoned programming language / runtime / IDE / cloud platform(?) that proposes new ways of thinking about building software, to an extent I've hardly seen elsewhere. Blocks of code are embedded in documents (think like a Jupyter notebook, kinda); blocks are self-contained little functions/handlers that query program state, manipulate it, and then write it back out; each block executes independently every "step", ordered only by dataflow dependencies; the whole thing is great at introspection and debugging. It was discovering Eve, and learning about how it work(ed), what it was founded on, what it led to next, etc. that led me down a Deep Rabbit Hole of discovering other work in distributed systems, logic programming, and the relational model:</li>
+
+    <li><a href="https://www2.eecs.berkeley.edu/Pubs/TechRpts/2009/EECS-2009-173.pdf">Dedalus: Datalog in Time and Space</a> (also <a href="http://www.neilconway.org/talks/dedalus_osq.pdf">these slides</a>). A framework for reasoning about time and "space" aka different machines, in distributed systems, in a logic programming language (pure Datalog). One key idea: endow every proposition <code>p(A, B)</code> with another variable <code>t</code>, for time, so instead of <code>p(A, B) :- ...</code> meaning "p is true of A and B if ..." we have <code>p(A, B, t) :- ...</code> => "p is true of A and B <i>at timestamp t</i> if ..." This is pretty intuitive (though only in retrospect). From 2009! I still don't 100% understand this paper, but I am working on it, since it's what Eve is founded on and it does appear to be pretty fundamental to some further research in distributed systems since then.</li>
+
+    <li><a href="https://cs.stanford.edu/~matei/courses/2015/6.S897/readings/naiad.pdf">Naiad - A Timely Dataflow System.</a> Developed by McSherry et al., these ideas would eventually go on to form the basis of <a href="https://github.com/TimelyDataflow/differential-dataflow">differential dataflow</a>, and various technologies built on top of that. It's a framework for data-parallel incremental reactive computation -- that is, it can be used to define computations over data sources that change over time, and when the source data change, the outputs are automatically updated, requiring work proportional only to the amount of change (i.e. not recomputing everything from scratch). I'm convinced Differential Dataflow is going to be a Big Thing someday, possibly soon, and so I want to understand the research/theory that started it off.</li>
+
+    <li><a href="https://www.categoricaldata.net/">Categorical Query Language</a> -- a relational query language informed by category theory. I read it as "SQL with a better syntax and compile-time type checking, plus some higher mathy stuff". It has a built-in theorem prover! See e.g. <a href="https://www.categoricaldata.net/fk.php">the example on foreign keys</a> --  I like the implicit joins just by dereferencing a foreign key, almost as if it were an object field. This is a great example of a relational language and other than the weird stuff with "typesides", it's pretty hard to beat on semantics honestly. I think there's room to improve on it though in terms of syntax, familiarity and ease-of-use.</li>
+
+    <li><a href="https://oceanpark.com/ap5.html">AP5</a> -- a Common List extension from 1990 (that's older than me!) providing in-memory relations, a query language, consistency rules, triggers, etc. It really serves as an amazing model and inspiration for building a relational programming language, and I'm not sure why it never really seemed to reach adoption.</a>
+
+    <li><a href="http://cell-lang.net/index.html">Cell language</a> -- another example of a relational programming language. Provides a clean and concise syntax for reading and manipulating binary relations, and highly normalized (~ 6th Normal Form) schemas, like the above examples. Interesting in that it compiles to C++/C#/Java code, instead of machine code or interpreter bytecode; you're expected to use this to generate some classes and functions that you can then incorporate into a broader project.</a>
+
+    <li><a href="https://arxiv.org/abs/2101.01159">New Directions in Cloud Programming</a> -- from CIDR 2021, so, recent. I'm still working on this one. I'm totally on board with the idea of "we need new programming languages/models, where the execution environment is a collection of cloud resources working together, not just an interpreter or binary on a single machine". This incorporates ideas from Dedalus, Timely Dataflow, etc. -- this is the Good Stuff. I'm excited to finish reading this, and to see (and perhaps contribute to) new practical tools inspired by it!</li>
+</ul>
+
+<h3>Software Performance</h3>
+
+<ul>
+<li><a href="https://andre.arko.net/2018/10/25/parsing-logs-230x-faster-with-rust/">Parsing Logs 230x Faster With Rust</a>. This was a hugely influential post on my development as a programmer -- beyond just inpsiring me to learn Rust, it helped shape and change how I, as previously just a Python programmer, thought about performance, memory, and what's possible. It also helped change my view on many modern "big data" systems (namely: to the view that many are bloated, suffer from overhead, and in most cases, if your data isn't as big as you think, are not the right tool for the job).</li>
+</ul>
+
+<h3>Serverless</h3>
+
+<p>For a while back I was interested in implementing a data processing and storage framework on top of purely serverless primitives, for a few reasons -- to take advantage of the massive parallelism afforded by AWS Lambda (or similar FaaS), to beat AWS Elastic MapReduce on speed for small-medium jobs by being faster at starting up, and mainly because of the frustration and headache of operating a Spark cluster. Shifting priorities at work (and outside work) led to it being shelved, but I still think it could be a good idea, and I found some interesting things along the way:</p>
+<ul>
+<li><a href="http://pywren.io/">PyWren</a> -- the first example of this idea I found, and still the simplest and clearest: scale out embarassingly-parallel numeric/scientific Python workloads easily via Lambda. Quote: "Our proposal in this paper was motivated by a professor of computer graphics at UC Berkeley asking us “Why is there no cloud button?” He outlined how his students simply wish they could easily “push a button” and have their code – existing, optimized, single-machine code – running on the cloud." -- That's a damn good question. Why is there no "cloud" button? There ought to be.
+
+<li><a href="https://arxiv.org/pdf/1803.06354.pdf">Serverless Data Analytics with Flint</a> -- a Spark execution engine on top of Lambda. This one actually plugs in as a Spark backend via the <code>SchedulerBackend</code> interface, so you use the same Spark API as normal. They use SQS for shuffles and storage of intermediate results (which are the two perennial problems with serverless map/reduce architectures).</li>
+
+<li><a href="https://cs.stanford.edu/~matei/papers/2019/usenix_atc_gg.pdf">gg</a> -- "compiling Chromium on lambdas" ~5x faster than a 384-core conventional cluster. Converts existing programs ("e.g. software compilation, unit tests, video encoding, or searching a movie with an object-recognition kernel") to an IR, compiles that to containerized functions that run in the cloud. I need to read this one in more detail.</li>
+
+<li><a href="https://benjamincongdon.me/blog/2018/05/02/Introducing-Corral-A-Serverless-MapReduce-Framework/">Corral - A Serverless Map-Reduce Framework</a> -- A serverless map-reduce framework (like it says on the tin) written in Go. Source code is available. It does some clever things and covers all the bases I'd want except, as it notes: "As I anticipated, corral does quite well on filtering and aggregation. However, it falls flat on joins. Without a <a href="https://www.safaribooksonline.com/library/view/data-algorithms/9781491906170/ch01.html">secondary sort</a>, joins become expensive." -- The difficulty with joins has the same root as the difficulty with shuffles and storage of intermediate results, which other attempts (e.g. Flint, above) attempt to remediate through using a faster intermediate store like SQS or Elasticache.</li>
+
+<li><a href="http://cidrdb.org/cidr2019/papers/p119-hellerstein-cidr19.pdf">Serverless Computing - One Step Forward, Two Steps Back.</a> A reasonable criticism of the above efforts. Its main points are 1) lambdas have no data locality, you have to ship data to code (e.g. from S3), which is against the Current Wisdom of Distributed Systems; 2) Lambdas (or equivalent) aren't network addressable, and can't communicate with each other, so you have to either a) only solve embarassingly parallel problems with very minimal communication or b) use a secondary service (like S3 or SQS) for all communication, which is slow; 3) Lambdas use generic hardware that you can't control, so there's no opportunity for things like GPU acceleration (or SIMD acceleration, possibly). 
+    <ul><li>One objection to these objections -- which the authors do note in the paper -- is that designing around these constraints and limitations could inspire more innovative techniques; e.g. the lack (or exorbitant cost) of communication between Lambdas or ordering of their execution incentivizes [https://disorderlylabs.github.io/](disorderly programming), high-level declarative languages, etc.</li></ul>
+</ul>
+
+
+</body>
+
+</html>
