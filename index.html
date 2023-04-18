@@ -1,53 +1,52 @@
 <!DOCTYPE html>
 <html>
-    <head>
-        <meta name="viewport" content="width=device-width, initial-scale=1">
-        <title>evdc's wobsite</title>
+  <head>
+    <title>evdc's website</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="https://fonts.googleapis.com/css?family=Roboto:400,700&display=swap" rel="stylesheet">
+    <link href="new.css" rel="stylesheet">
+  </head>
+  <body>
+    <header>
+      <h1>Evan Crook</h1>
+      <p>Senior Software Engineer</p>
+    </header>
 
-        <style type="text/css">
-            body {
-                margin: 40px auto;
-                max-width: 800px;
-                line-height: 1.6;
-                font-size: 18px;
-                font-family: Helvetica, sans-serif;
-                color: #444;
-                background: #eee;
-                padding: 0 10px
-            }
-            h1,h2,h3 {
-                line-height: 1.2;
-                text-align: center;
-            }
-        </style>
-    </head>
 
-    <body>
-        <h1>Evan Crook</h1>
 
-        <p>Welcome to my personal page. I'm glad you're here.</p> 
-        <p>I work as a software engineer. My interests and experience generally cluster around "big data", ETL, distributed systems, concurrency, performance improvements, natural language processing, programming languages and compilers, ...
-        <br/>
-        At heart, though, I just love building software that is clean, performant,
-        innovative, and pleasant to use.</p>
-        <br/>
+    <div class="container">
+      <section id="about">
+        <div class="intro">
+          <h2>About Me</h2>
+          <p>Welcome to my personal page. I'm glad you're here.</p> 
+            <p>I work as a software engineer, with 8 years of experience in software and data engineering. 
+                My interests and experience generally cluster around "big data", ETL, distributed systems, concurrency, performance improvements, natural language processing, programming languages and compilers, ...
+            <br/><br/>
+            At heart, though, I just love building software that is clean, performant, innovative, and pleasant to use.</p>
+        </div>
+      </section>
 
-        <p>What I'm currently working on (little by little):</p>
+      <section id="projects">
+        <h2>Projects</h2>
+        <p>What I'm currently working on:</p>
         <ul>
-            <li>This website -- very much a work in progress; currently it is a single hand-written html file.
-                Someday soon(tm) I'll set up a blog and a static site generator.</li>
+            <li>This website -- a single hand-written html file.</li>
 
             <li>Learning compilers, and Rust, at the same time by reading <a href="https://craftinginterpreters.com/">Crafting Interpreters</a>
-                and building a toy language called <a href=https://github.com/evdc/sprout-rs>Sprout</a>.</li>
+                and building <a href=https://github.com/evdc/sprout-rs>Sprout</a>, an experimental relational scripting language.
+            </li>
 
             <li>Reading about distributed systems, programming languages, reactive/incremental logic programming, etc.,
                 and discovering various <a href="http://witheve.com">strange</a> and <a href="http://cell-lang.net/">fascinating</a> <a href="https://ap5.com/">projects</a> in that space.
             </li>
         </ul>
-        <br/>
+      </section>
 
-        <p>When away from a computer screen, I enjoy board games and chasing my toddler around the house. In the Before Times, I was a fan of hiking, camping, skiing, and exploring new restaurants.</p>
-        <p>I live in Minneapolis, MN, the land of snow and forests and passive-aggressive people.</p>
+      <section id="readings">
+        <h2>Readings</h2>
+        <p><a href="readings.html">Here</a> are some things I've read, or want to read more about, or think are interesting.</p><br/>
+      </section>
+
     </body>
-
 </html>
+      
