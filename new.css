@@ -1,8 +1,15 @@
 /* General Styles */
+
+:root {
+    --bgcolor: #f6f6ed;
+    --fgcolor: #402a02;
+    --darkgreen: #01511c;
+}
+
 body {
     font-family: "Avenir Next", sans-serif;
-    color: #444;
-    background: #eee;
+    color: var(--fgcolor);
+    background: var(--bgcolor);;
     margin: 40px auto;
     max-width: 800px;
     line-height: 1.6;
@@ -23,8 +30,8 @@ a:hover {
 }
 /* Header */
 header {
-    background-color: #006699;
-    color: #fff;
+    background-color: var(--darkgreen);
+    color: var(--bgcolor);
     padding: 20px;
     text-align: center;
 }
@@ -55,7 +62,7 @@ nav li {
 /* Main Content */
 .container {
     margin: 20px auto;
-    max-width: 800px;
+    /* max-width: 800px; */
     padding: 0 20px;
 }
 
