@@ -26,8 +26,8 @@
     "@elysium/compiler": "file:/Users/evdc/Projects/elysium26/packages/compiler/elysium-compiler-0.1.0.tgz"
   },
   "scripts": {
-    "dev": "bunx --bun vite --config playground/vite.config.ts",
-    "build": "bunx --bun vite build --config playground/vite.config.ts",
-    "preview": "bunx --bun vite preview --config playground/vite.config.ts"
+    "dev": "bunx --bun vite --config playground-src/vite.config.ts",
+    "build": "bunx --bun vite build --config playground-src/vite.config.ts",
+    "preview": "bunx --bun vite preview --config playground-src/vite.config.ts"
   }
 }
