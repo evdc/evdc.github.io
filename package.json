@@ -28,6 +28,7 @@
   "scripts": {
     "dev": "bunx --bun vite --config playground-src/vite.config.ts",
     "build": "bunx --bun vite build --config playground-src/vite.config.ts",
-    "preview": "bunx --bun vite preview --config playground-src/vite.config.ts"
+    "preview": "bunx --bun vite preview --config playground-src/vite.config.ts",
+    "reinstall": "rm -rf node_modules/ && bun install"
   }
 }
