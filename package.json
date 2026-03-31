@@ -1,0 +1,33 @@
+{
+  "name": "evdc.github.io",
+  "module": "index.ts",
+  "type": "module",
+  "private": true,
+  "devDependencies": {
+    "@types/bun": "latest"
+  },
+  "peerDependencies": {
+    "typescript": "^5"
+  },
+  "dependencies": {
+    "@codemirror/lang-javascript": "^6.2.5",
+    "@codemirror/state": "^6.6.0",
+    "@codemirror/theme-one-dark": "^6.1.3",
+    "@codemirror/view": "^6.40.0",
+    "codemirror": "^6.0.2",
+    "vite": "^8.0.3",
+    "@elysium/runtime": "file:/Users/evdc/Projects/elysium26/packages/runtime/elysium-runtime-0.1.0.tgz",
+    "@elysium/platform": "file:/Users/evdc/Projects/elysium26/packages/platform/elysium-platform-0.1.0.tgz",
+    "@elysium/compiler": "file:/Users/evdc/Projects/elysium26/packages/compiler/elysium-compiler-0.1.0.tgz"
+  },
+  "overrides": {
+    "@elysium/runtime": "file:/Users/evdc/Projects/elysium26/packages/runtime/elysium-runtime-0.1.0.tgz",
+    "@elysium/platform": "file:/Users/evdc/Projects/elysium26/packages/platform/elysium-platform-0.1.0.tgz",
+    "@elysium/compiler": "file:/Users/evdc/Projects/elysium26/packages/compiler/elysium-compiler-0.1.0.tgz"
+  },
+  "scripts": {
+    "dev": "bunx --bun vite --config playground/vite.config.ts",
+    "build": "bunx --bun vite build --config playground/vite.config.ts",
+    "preview": "bunx --bun vite preview --config playground/vite.config.ts"
+  }
+}

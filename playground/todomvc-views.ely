@@ -1,0 +1,61 @@
+-- TodoMVC with views
+app TodoMVC
+
+table todos
+    id:        ID    @primary
+    text:      Text  @check(len(text) > 0, 'Todo text cannot be empty')
+    completed: Bool  @default(false)
+
+state appState
+    filter: 'all' | 'active' | 'completed' = 'all'
+
+event TodoCreated(id: ID<todos>, text: Text)
+event TodoToggled(id: ID<todos>)
+event TodoDeleted(id: ID<todos>)
+event FilterChanged(filter: 'all' | 'active' | 'completed')
+
+on TodoCreated(id, text)
+    todos insert {id, text}
+
+on TodoToggled(id)
+    todos where .id = id update {completed: not .completed}
+
+on TodoDeleted(id)
+    todos where .id = id delete
+
+on FilterChanged(filter)
+    set appState.filter = filter
+
+query visibleTodos =
+    todos
+    where match appState.filter {
+        'all'       => true
+        'active'    => not .completed
+        'completed' => .completed
+    }
+
+query activeTodoCount = visibleTodos where not .completed | count
+
+view TodoApp()
+    local newTodoText: Text = ''
+    <div className="todoapp">
+        <h1>Todo App</h1>
+        <input
+            className="new-todo"
+            placeholder="What needs to be done?"
+            value=newTodoText
+            on:input=(e) => set newTodoText = e.target.value
+            on:keyDown('Enter') => { do TodoCreated(uuid(), newTodoText) set newTodoText = '' }
+        />
+        <ul className="todo-list">
+            {visibleTodos map (todo) => <TodoItem todo />}
+        </ul>
+        <span className="count">Active todos: {activeTodoCount}</span>
+    </div> 
+
+view TodoItem(todo: todos)
+    <li className="todo-item">
+        <input type="checkbox" checked=todo.completed on:click => do TodoToggled(todo.id) />
+        <span className="label">{todo.text}</span>
+        <button className="destroy" on:click => do TodoDeleted(todo.id)>x</button>
+    </li>
