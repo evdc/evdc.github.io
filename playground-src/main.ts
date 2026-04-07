@@ -18,10 +18,11 @@ import {
   changeRecordsToZSets,
   createRuntime,
   synthDelta,
+  type RuntimeTraceEntry,
 } from '@elysium/runtime'
 import { createPlatform, reconcileList } from '@elysium/platform'
 
-import defaultSource from './todomvc-views.ely?raw'
+import defaultSource from './chat.ely?raw'
 
 type RuntimeLike = ReturnType<typeof createRuntime>
 type PlatformLike = ReturnType<typeof createPlatform>
@@ -33,39 +34,10 @@ type CompiledModule = {
 
 let editor: EditorView
 let unmountCurrent: (() => void) | null = null
-
-const app = document.querySelector('#app')
-if (!(app instanceof HTMLElement)) {
-  throw new Error('Missing #app root')
-}
-
-app.innerHTML = `
-  <main class="page">
-    <header class="header">
-      <div>
-        <h1>Elysium Playground</h1>
-        <p class="subtitle">Edit source, compile in-browser, and render the root view.</p>
-      </div>
-      <div class="controls">
-        <button id="reset-button" type="button">Reset</button>
-        <button id="compile-button" class="primary" type="button">Compile</button>
-      </div>
-    </header>
-
-    <section class="layout">
-      <article class="panel">
-        <div class="panel-header">Source</div>
-        <div id="editor"></div>
-        <div id="status" class="status-ok">Ready.</div>
-      </article>
-
-      <article class="panel">
-        <div class="panel-header">Preview</div>
-        <div id="preview-root"></div>
-      </article>
-    </section>
-  </main>
-`
+let traceUnsub: (() => void) | null = null
+let activeRuntime: RuntimeLike | null = null
+const MAX_TRACE = 400
+let traceBuffer: RuntimeTraceEntry[] = []
 
 const editorHost = mustElement('editor')
 const previewHost = mustElement('preview-root')
@@ -100,6 +72,15 @@ resetButton.addEventListener('click', () => {
   setStatus('Source reset. Press Compile to rebuild preview.', false)
 })
 
+const traceLog = mustElement('trace-log')
+const clearTraceButton = mustElement('clear-trace-button') as HTMLButtonElement
+
+clearTraceButton.addEventListener('click', () => {
+  traceBuffer = []
+  activeRuntime?.clearTraceLog()
+  renderTraceLog()
+})
+
 compileAndRender()
 
 function compileAndRender(): void {
@@ -107,7 +88,13 @@ function compileAndRender(): void {
 
   teardownPreview(previewHost)
 
-  const result = compile(source)
+  let result
+  try {
+    result = compile(source)
+  } catch (err) {
+    setStatus(formatCompileException(err, source), true)
+    return
+  }
   if (!result.ok) {
     setStatus(formatDiagnostics(result.diagnostics), true)
     return
@@ -120,6 +107,16 @@ function compileAndRender(): void {
       setStatus('Compile succeeded, but no view declarations were found to mount.', true)
       return
     }
+    activeRuntime = mod.rt
+    traceBuffer = mod.rt.getTraceLog().slice(-MAX_TRACE)
+    renderTraceLog()
+    traceUnsub = mod.rt.onTrace((entry) => {
+      traceBuffer.push(entry)
+      if (traceBuffer.length > MAX_TRACE) {
+        traceBuffer = traceBuffer.slice(traceBuffer.length - MAX_TRACE)
+      }
+      renderTraceLog()
+    })
 
     const mount = mod.platform.mount(previewHost, (p) => p.createComponent(rootView, {}))
     unmountCurrent = mount
@@ -133,7 +130,27 @@ function compileAndRender(): void {
   }
 }
 
+function formatCompileException(err: unknown, source: string): string {
+  const msg = err instanceof Error ? err.message : String(err)
+  const line = typeof err === 'object' && err && 'line' in err ? Number((err as any).line) : NaN
+  const col = typeof err === 'object' && err && 'col' in err ? Number((err as any).col) : NaN
+  if (!Number.isFinite(line) || !Number.isFinite(col)) return `Compile failed:\n${msg}`
+
+  const lines = source.split('\n')
+  const text = lines[line - 1] ?? ''
+  const caret = `${' '.repeat(Math.max(0, col - 1))}^`
+  return `Compile failed at ${line}:${col}\n${msg}\n\n${text}\n${caret}`
+}
+
 function teardownPreview(preview: HTMLElement): void {
+  if (traceUnsub) {
+    traceUnsub()
+    traceUnsub = null
+  }
+  activeRuntime = null
+  traceBuffer = []
+  renderTraceLog()
+
   if (unmountCurrent) {
     unmountCurrent()
     unmountCurrent = null
@@ -144,8 +161,7 @@ function teardownPreview(preview: HTMLElement): void {
 function runCompiled(jsSource: string): CompiledModule {
   const body = jsSource
     .replace(/^import\s+[^\n]+\n/gm, '')
-    .replace(/\bexport\s+const\s+rt\s*=\s*/g, 'const rt = ')
-    .replace(/\bexport\s+const\s+platform\s*=\s*/g, 'const platform = ')
+    .replace(/\bexport\s+const\s+/g, 'const ')
 
   const prelude = `
     const {
@@ -161,6 +177,10 @@ function runCompiled(jsSource: string): CompiledModule {
       reconcileList,
       synthDelta,
     } = deps;
+    // Sync/persistence is a no-op in the playground
+    const createSyncBridge = () => ({ start() {} });
+    const BroadcastChannelSync = class {};
+    const IndexedDBPersistence = class {};
   `
 
   const evaluator = new Function(
@@ -228,3 +248,44 @@ function mustElement(id: string): HTMLElement {
   }
   return el
 }
+
+function renderTraceLog(): void {
+  if (traceBuffer.length === 0) {
+    traceLog.textContent = 'No trace entries yet. Interact with the app to see events.'
+    return
+  }
+  traceLog.textContent = traceBuffer.map(formatTraceEntry).join('\n')
+  traceLog.scrollTop = traceLog.scrollHeight
+}
+
+function formatTraceEntry(entry: RuntimeTraceEntry): string {
+  const t = new Date(entry.at).toLocaleTimeString()
+
+  if (entry.kind === 'quiescence') {
+    return `[${t}] quiescence`
+  }
+
+  if (entry.kind === 'queryNotify') {
+    return `[${t}] query ${entry.query} -> ${entry.resultType} size=${entry.size} delta=${entry.deltaSize ?? '-'}`
+  }
+
+  const e = entry.event
+  const handlerBits = e.handlerTraces
+    .map((h) => `h#${h.handlerIndex}[${h.ops.map((op) => op.kind).join(',') || 'no-op'}]`)
+    .join(' ')
+  return `[${t}] event ${e.name} id=${e.id}${e.parentId ? ` parent=${e.parentId}` : ''} handlers=${e.handlerTraces.length} ${handlerBits} payload=${safeJson(e.payload)}`
+}
+
+function safeJson(value: unknown): string {
+  try {
+    return JSON.stringify(value)
+  } catch {
+    return '[unserializable]'
+  }
+}
+
+
+window.addEventListener('error', (e) => setStatus(`Unhandled error:\n${e.message}`, true))
+window.addEventListener('unhandledrejection', (e) =>
+  setStatus(`Unhandled promise rejection:\n${String(e.reason)}`, true)
+)

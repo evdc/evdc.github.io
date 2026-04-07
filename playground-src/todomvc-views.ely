@@ -1,34 +1,31 @@
 -- TodoMVC with views
 app TodoMVC
 
-table todos
-    id:        ID    @primary
+data Todo
     text:      Text  @check(len(text) > 0, 'Todo text cannot be empty')
     completed: Bool  @default(false)
 
-state appState
-    filter: 'all' | 'active' | 'completed' = 'all'
+state filter: 'all' | 'active' | 'completed' = 'all'
 
-event TodoCreated(id: ID<todos>, text: Text)
-event TodoToggled(id: ID<todos>)
-event TodoDeleted(id: ID<todos>)
-event FilterChanged(filter: 'all' | 'active' | 'completed')
+event TodoCreated(text: Text)
+event TodoToggled(t: Todo)
+event TodoDeleted(t: Todo)
 
 on TodoCreated(id, text)
-    todos insert {id, text}
+    Todo insert {id, text}
 
-on TodoToggled(id)
-    todos where .id = id update {completed: not .completed}
+on TodoToggled(todo)
+    Todo where .id = todo update {completed: not .completed}
 
-on TodoDeleted(id)
-    todos where .id = id delete
+on TodoDeleted(todo)
+    Todo where .id = todo delete
 
-on FilterChanged(filter)
-    set appState.filter = filter
+event FilterChanged(f: 'all' | 'active' | 'completed')
+on FilterChanged(f)
+    set filter = f
 
 query visibleTodos =
-    todos
-    where match appState.filter {
+    Todo where match filter {
         'all'       => true
         'active'    => not .completed
         'completed' => .completed
@@ -45,17 +42,26 @@ view TodoApp()
             placeholder="What needs to be done?"
             value=newTodoText
             on:input=(e) => set newTodoText = e.target.value
-            on:keyDown('Enter') => { do TodoCreated(uuid(), newTodoText) set newTodoText = '' }
+            on:keyDown('Enter') => { do TodoCreated(newTodoText) set newTodoText = '' }
         />
         <ul className="todo-list">
-            {visibleTodos map (todo) => <TodoItem todo />}
+            {visibleTodos as t select <TodoItem t />}
         </ul>
         <span className="count">Active todos: {activeTodoCount}</span>
+        <Footer />
     </div> 
 
-view TodoItem(todo: todos)
+view TodoItem(todo: Todo)
     <li className="todo-item">
-        <input type="checkbox" checked=todo.completed on:click => do TodoToggled(todo.id) />
+        <input type="checkbox" checked=todo.completed on:click => do TodoToggled(todo) />
         <span className="label">{todo.text}</span>
-        <button className="destroy" on:click => do TodoDeleted(todo.id)>x</button>
+        <button className="destroy" on:click => do TodoDeleted(todo)>x</button>
     </li>
+
+view Footer() 
+    <div className="footer">
+      <span>Filter:</span>
+      <button on:click => do FilterChanged('all')>All</button>
+      <button on:click => do FilterChanged('active')>Active</button>
+      <button on:click => do FilterChanged('completed')>Completed</button>
+    </div>

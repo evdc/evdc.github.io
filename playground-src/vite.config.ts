@@ -5,6 +5,7 @@ export default defineConfig({
   base: '/playground/',
   build: {
     outDir: '../playground',
-    emptyOutDir: true
+    emptyOutDir: true,
+    sourcemap: true
   }
 })
