@@ -47,7 +47,7 @@
 
     "@codemirror/view": ["@codemirror/view@6.41.0", "", { "dependencies": { "@codemirror/state": "^6.6.0", "crelt": "^1.0.6", "style-mod": "^4.1.0", "w3c-keyname": "^2.2.4" } }, "sha512-6H/qadXsVuDY219Yljhohglve8xf4B8xJkVOEWfA5uiYKiTFppjqsvsfR5iPA0RbvRBoOyTZpbLIxe9+0UR8xA=="],
 
-    "@elysium/compiler": ["@elysium/compiler@/Users/evdc/Projects/elysium26/packages/compiler/elysium-compiler-0.1.0.tgz", { "dependencies": { "@elysium/platform": "0.1.0", "@elysium/runtime": "0.1.0", "happy-dom": "^20.8.9" }, "bin": { "elysium": "./dist/cli.js" } }, "sha512-IedgoGYo+Zt7j6zI9w/FtN+bmsrLO47CQDPBSKpl8KVuxrPxaTJ15aukdoo0EJ1a+jEmWfl3B8vlhUZIOLMtXg=="],
+    "@elysium/compiler": ["@elysium/compiler@/Users/evdc/Projects/elysium26/packages/compiler/elysium-compiler-0.1.0.tgz", { "dependencies": { "@elysium/platform": "0.1.0", "@elysium/runtime": "0.1.0", "happy-dom": "^20.8.9" }, "bin": { "elysium": "./dist/cli.js" } }, "sha512-AMj3a1rxERs/v9T8o6NA9PdyvpaXQOthuQH3WqIkm3SEIn2DSlb31S+rXL+el+1znyDmDdsYL0vNkwHKJUlbNg=="],
 
     "@elysium/platform": ["@elysium/platform@/Users/evdc/Projects/elysium26/packages/platform/elysium-platform-0.1.0.tgz", { "dependencies": { "@elysium/runtime": "0.1.0" } }, "sha512-/5CVyNhjBZijEbXWiDRN2snbDEp47WNra+ElnK4r8geIOfd+qM/7sj6rANTh8wSiWntAYSdu9L2ndYADKYbYDw=="],
 
