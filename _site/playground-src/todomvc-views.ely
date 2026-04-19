@@ -1,0 +1,67 @@
+-- TodoMVC with views
+app TodoMVC
+
+data Todo
+    text:      Text  @check(len(text) > 0, 'Todo text cannot be empty')
+    completed: Bool  @default(false)
+
+state filter: 'all' | 'active' | 'completed' = 'all'
+
+event TodoCreated(text: Text)
+event TodoToggled(t: Todo)
+event TodoDeleted(t: Todo)
+
+on TodoCreated(id, text)
+    Todo insert {id, text}
+
+on TodoToggled(todo)
+    Todo where .id = todo update {completed: not .completed}
+
+on TodoDeleted(todo)
+    Todo where .id = todo delete
+
+event FilterChanged(f: 'all' | 'active' | 'completed')
+on FilterChanged(f)
+    set filter = f
+
+query visibleTodos =
+    Todo where match filter {
+        'all'       => true
+        'active'    => not .completed
+        'completed' => .completed
+    }
+
+query activeTodoCount = visibleTodos where not .completed | count
+
+view TodoApp()
+    local newTodoText: Text = ''
+    <div className="todoapp">
+        <h1>Todo App</h1>
+        <input
+            className="new-todo"
+            placeholder="What needs to be done?"
+            value=newTodoText
+            on:input=(e) => set newTodoText = e.target.value
+            on:keyDown('Enter') => { do TodoCreated(newTodoText) set newTodoText = '' }
+        />
+        <ul className="todo-list">
+            {visibleTodos as t select <TodoItem t />}
+        </ul>
+        <span className="count">Active todos: {activeTodoCount}</span>
+        <Footer />
+    </div> 
+
+view TodoItem(todo: Todo)
+    <li className="todo-item">
+        <input type="checkbox" checked=todo.completed on:click => do TodoToggled(todo) />
+        <span className="label">{todo.text}</span>
+        <button className="destroy" on:click => do TodoDeleted(todo)>x</button>
+    </li>
+
+view Footer() 
+    <div className="footer">
+      <span>Filter:</span>
+      <button on:click => do FilterChanged('all')>All</button>
+      <button on:click => do FilterChanged('active')>Active</button>
+      <button on:click => do FilterChanged('completed')>Completed</button>
+    </div>

@@ -1,0 +1,87 @@
+-- Inspiration: https://www.scattered-thoughts.net/writing/relational-ui/
+app Chat
+    @substrate(browser-local)
+
+data User
+    name: Text
+
+data Message
+    text:    Text
+    sent_by: User
+    liked_by: many User
+
+state current_user: User
+
+event SeedSynthetic()
+event MessageSent(sent_by: User, text: Text)
+event MessageLiked(msg: Message, liker: User)
+event MessageDeleted(msg: Message)
+event UserSelected(user: User) @local
+
+on SeedSynthetic()
+    User insert {id: 'u_alice', name: 'Alice'}
+    User insert {id: 'u_bob', name: 'Bob'}
+    User insert {id: 'u_chloe', name: 'Chloe'}
+    Message insert {id: 'm1', sent_by: 'u_alice', text: 'Welcome to Elysium chat'}
+    Message insert {id: 'm2', sent_by: 'u_bob', text: 'Like messages to test many-to-many joins'}
+    Message_liked_by insert {id: 'l1', message: 'm1', user: 'u_bob'}
+    Message_liked_by insert {id: 'l2', message: 'm1', user: 'u_chloe'}
+    set current_user = 'u_alice'
+
+on MessageSent(sent_by, text)
+    Message insert {sent_by, text}
+
+on MessageLiked(msg, liker)
+    Message_liked_by insert {message: msg, user: liker}
+
+on MessageDeleted(msg)
+    Message where .id = msg delete
+
+on UserSelected(user)
+    set current_user = user
+
+query likesWithUsers = Message_liked_by select {id, messageId: .message.id, likerName: .user.name}
+
+view ChatApp()
+    local newMsgText: Text = ''
+
+    <div className="chat-root">
+        <h1>Chat App</h1>
+
+        <div className="toolbar">
+            <button on:click => do SeedSynthetic()>Load Synthetic Data</button>
+            <span>Current user: {current_user}</span>
+        </div>
+
+        <div className="users">
+            {User as u select <button on:click => do UserSelected(u)>{u.name}</button>}
+        </div>
+
+        <table>
+            {Message as msg select <MessageItem msg />}
+        </table>
+
+        <input
+            className="send-message"
+            placeholder="Say something ..."
+            value=newMsgText
+            on:input=(e) => set newMsgText = e.target.value
+            on:keyDown('Enter') => {
+                do MessageSent(current_user, newMsgText)
+                set newMsgText = ''
+            }
+        />
+    </div>
+
+view MessageItem(msg: Message)
+    <tr>
+        <td>{msg.sent_by}:</td>
+        <td>{msg.text}</td>
+        <td>{
+            likesWithUsers as l
+            where l.messageId = msg.id 
+            select <div>{l.likerName}{' likes this!'}</div>
+        }</td>
+        <td><button on:click => do MessageLiked(msg, current_user)>Like!</button></td>
+        if msg.sent_by = current_user then <td><button on:click => do MessageDeleted(msg)>Delete</button></td>
+    </tr>

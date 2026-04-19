@@ -1,0 +1,8 @@
+title: evdc's blog
+url: https://evdc.me
+baseurl: ""        # leave empty if serving from root
+defaults:
+  - scope:
+      path: "_posts"
+    values:
+      layout: "post"

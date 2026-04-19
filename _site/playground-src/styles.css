@@ -1,0 +1,138 @@
+:root {
+  --bg: #f4f7fb;
+  --panel: #ffffff;
+  --border: #d7deea;
+  --text: #172033;
+  --muted: #5c6a84;
+  --accent: #0f6bff;
+  --danger: #cb2d3e;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: radial-gradient(circle at 12% 6%, #d7e9ff 0%, #f4f7fb 36%, #f4f7fb 100%);
+  color: var(--text);
+  font-family: "IBM Plex Sans", "Avenir Next", "Segoe UI", system-ui, sans-serif;
+}
+
+.page {
+  min-height: 100vh;
+  padding: 20px;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+
+h1 {
+  margin: 0;
+  font-size: 22px;
+}
+
+.subtitle {
+  margin: 4px 0 0;
+  color: var(--muted);
+  font-size: 14px;
+}
+
+.controls {
+  display: flex;
+  gap: 8px;
+}
+
+button {
+  border: 1px solid var(--border);
+  background: #fff;
+  color: var(--text);
+  border-radius: 10px;
+  padding: 8px 12px;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+button:hover {
+  border-color: #bdc9de;
+}
+
+button.primary {
+  border-color: var(--accent);
+  background: var(--accent);
+  color: #fff;
+}
+
+.layout {
+  display: grid;
+  grid-template-columns: minmax(380px, 1fr) minmax(320px, 1fr);
+  gap: 14px;
+}
+
+.panel {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  overflow: hidden;
+  box-shadow: 0 14px 24px rgba(22, 34, 58, 0.08);
+}
+
+.panel-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--border);
+  font-weight: 700;
+  font-size: 13px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+#editor {
+  height: 68vh;
+}
+
+#preview-root {
+  min-height: 68vh;
+  padding: 14px;
+  background: linear-gradient(180deg, #fdfefe 0%, #f8fbff 100%);
+}
+
+#status {
+  border-top: 1px solid var(--border);
+  padding: 10px 12px;
+  font-family: "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 12px;
+  white-space: pre-wrap;
+}
+
+.status-ok {
+  color: #146b2e;
+}
+
+.status-error {
+  color: var(--danger);
+}
+
+@media (max-width: 960px) {
+  .layout {
+    grid-template-columns: 1fr;
+  }
+
+  #editor,
+  #preview-root {
+    min-height: 46vh;
+    height: 46vh;
+  }
+
+  .header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}

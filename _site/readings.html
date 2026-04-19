@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Reading List · Evan Crook</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:ital,wght@0,400;0,500;1,400&family=IBM+Plex+Sans:wght@400;500&display=swap');
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #f6f6ed;
+      --text: #402a02;
+      --muted: #7a5c30;
+      --accent: #01511c;
+      --accent-light: #e6f0e9;
+      --border: #c8c8b8;
+      --mono: 'IBM Plex Mono', monospace;
+      --sans: 'IBM Plex Sans', sans-serif;
+      --max: 680px;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--sans);
+      font-size: 16px;
+      line-height: 1.7;
+      padding: 3rem 1.5rem 6rem;
+    }
+
+    .container { max-width: var(--max); margin: 0 auto; }
+
+    header {
+      margin-bottom: 3rem;
+      padding: 1.5rem 1.75rem;
+      background: #01511c;
+      border-radius: 4px;
+    }
+
+    header h1 {
+      font-family: var(--mono);
+      font-size: 1.6rem;
+      font-weight: 500;
+      letter-spacing: -0.02em;
+      margin-bottom: 0.5rem;
+      color: #f6f6ed;
+    }
+
+    .back-link {
+      font-family: var(--mono);
+      font-size: 0.8rem;
+      color: #a8c8b0;
+    }
+
+    .back-link a {
+      color: #c8e8d0;
+      text-decoration: none;
+      border-bottom: 1px solid rgba(255,255,255,0.2);
+    }
+
+    .back-link a:hover { border-bottom-color: #c8e8d0; }
+
+    .intro {
+      font-size: 0.92rem;
+      color: #a8c8b0;
+      margin-top: 1rem;
+      font-style: italic;
+    }
+
+    section { margin-bottom: 3rem; }
+
+    h2 {
+      font-family: var(--mono);
+      font-size: 0.8rem;
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--muted);
+      margin-bottom: 1.5rem;
+      padding-bottom: 0.4rem;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .entry { margin-bottom: 1.75rem; }
+
+    .entry-title {
+      font-family: var(--mono);
+      font-size: 0.88rem;
+      font-weight: 500;
+      margin-bottom: 0.4rem;
+    }
+
+    .entry-title a {
+      color: var(--accent);
+      text-decoration: none;
+      border-bottom: 1px solid #7ab890;
+      transition: border-color 0.15s;
+    }
+
+    .entry-title a:hover { border-bottom-color: var(--accent); }
+
+    .entry-meta {
+      font-family: var(--mono);
+      font-size: 0.72rem;
+      color: var(--muted);
+      margin-bottom: 0.5rem;
+    }
+
+    .entry p {
+      font-size: 0.93rem;
+      color: #402a02;
+      line-height: 1.65;
+    }
+
+    code {
+      font-family: var(--mono);
+      font-size: 0.85em;
+      background: #e8e8d8;
+      padding: 0.1em 0.3em;
+      border-radius: 2px;
+    }
+
+    a { color: var(--accent); text-decoration: none; border-bottom: 1px solid #7ab890; }
+    a:hover { border-bottom-color: var(--accent); }
+
+    .section-note {
+      font-size: 0.9rem;
+      color: var(--muted);
+      margin-bottom: 1.5rem;
+      font-style: italic;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>Reading list</h1>
+      <p class="back-link">← <a href="index.html">back to evdc.me</a></p>
+      <p class="intro">Papers, projects, and ideas I've found genuinely interesting. A map of how I think about the problem space — distributed systems, query languages, logic programming, and the future of data infrastructure.</p>
+    </header>
+
+    <section id="distributed-systems">
+      <h2>Distributed systems · logic programming · query languages</h2>
+
+      <p class="section-note">This cluster started with Eve and kept pulling on threads — Datalog, incremental computation, reactive systems. It's the area I find most intellectually alive in systems research right now.</p>
+
+      <div class="entry">
+        <p class="entry-title"><a href="http://witheve.com/">Eve</a></p>
+        <p class="entry-meta">abandoned project · foundational influence</p>
+        <p>Maybe the single most influential discovery of my career. 
+            Eve was a strange, wonderful, and sadly abandoned programming language / runtime / IDE / cloud platform that proposed new ways of thinking about building software unlike anything I'd seen. 
+            Code blocks embedded in documents (like a Jupyter notebook but more fundamental); blocks are self-contained handlers that query program state, manipulate it, and write it back; each block executes independently every step, ordered only by dataflow dependencies. 
+            Discovering Eve and tracing what it was founded on and what it led to next sent me down a rabbit hole I haven't fully climbed out of.</p>
+      </div>
+
+      <div class="entry">
+        <p class="entry-title"><a href="https://www2.eecs.berkeley.edu/Pubs/TechRpts/2009/EECS-2009-173.pdf">Dedalus: Datalog in Time and Space</a> · <a href="http://www.neilconway.org/talks/dedalus_osq.pdf">slides</a></p>
+        <p class="entry-meta">Berkeley · 2009 · paper</p>
+        <p>A framework for reasoning about time and "space" (i.e. different machines) in distributed systems, using pure Datalog. The key idea: endow every proposition <code>p(A, B)</code> with a time variable <code>t</code>, so <code>p(A, B, t)</code> means "p is true of A and B <em>at timestamp t</em>." Intuitive in retrospect, powerful in practice. From 2009, predating most of what people now call "streaming". This is what Eve is founded on, and it shows up in a lot of subsequent distributed systems research.</p>
+      </div>
+
+      <div class="entry">
+        <p class="entry-title"><a href="https://cs.stanford.edu/~matei/courses/2015/6.S897/readings/naiad.pdf">Naiad: A Timely Dataflow System</a></p>
+        <p class="entry-meta">McSherry et al. · paper · basis for Differential Dataflow</p>
+        <p>A framework for data-parallel incremental reactive computation — when source data changes, outputs update automatically, requiring work proportional only to the size of the change (not a full recompute). McSherry et al.'s ideas here became the basis for <a href="https://github.com/TimelyDataflow/differential-dataflow">Differential Dataflow</a>, 
+            ultimately commercialized in Materialize and Feldera.</p>
+      </div>
+
+      <div class="entry">
+        <p class="entry-title"><a href="https://www.categoricaldata.net/">Categorical Query Language (CQL)</a></p>
+        <p class="entry-meta">project · active</p>
+        <p>A relational query language grounded in category theory. I read it as "SQL with a better type system and compile-time integrity checking, plus some category-theory machinery underneath." It has a built-in theorem prover, and the <a href="https://www.categoricaldata.net/fk.php">foreign key handling</a> — where you dereference a FK like an object field and the join is implicit — is elegant. On pure semantics it's hard to beat. Room to improve on syntax and accessibility.</p>
+      </div>
+
+      <div class="entry">
+        <p class="entry-title"><a href="https://oceanpark.com/ap5.html">AP5</a></p>
+        <p class="entry-meta">Common Lisp extension · 1990 · historical</p>
+        <p>A Common Lisp extension from 1990 (older than me!) providing in-memory relations, a query language, consistency rules, and triggers. A surprisingly complete model for a relational programming language. 
+            Another example of what a "better SQL" or "SQL/programming language hybrid" could look like.</p>
+      </div>
+
+      <div class="entry">
+        <p class="entry-title"><a href="http://cell-lang.net/index.html">Cell language</a></p>
+        <p class="entry-meta">project · relational programming language</p>
+        <p>Another relational programming language — clean and concise syntax for manipulating binary relations, highly normalized schemas (around 6NF). Compiles to C++/C#/Java rather than machine code or bytecode: the intended use is generating classes and functions you incorporate into a larger project. An interesting design tradeoff.</p>
+      </div>
+
+      <div class="entry">
+        <p class="entry-title"><a href="https://arxiv.org/abs/2101.01159">New Directions in Cloud Programming</a></p>
+        <p class="entry-meta">CIDR 2021 · paper</p>
+        <p>Makes the case for programming languages and models where the execution environment is a collection of cloud resources — not just an interpreter or binary on a single machine. Synthesizes ideas from Dedalus, Timely Dataflow, and others. I'm fully on board with the premise: the right abstractions for distributed systems haven't been invented yet, and this paper is a good map of the territory.</p>
+      </div>
+    </section>
+
+    <section id="performance">
+      <h2>Software performance</h2>
+
+      <div class="entry">
+        <p class="entry-title"><a href="https://andre.arko.net/2018/10/25/parsing-logs-230x-faster-with-rust/">Parsing Logs 230x Faster With Rust</a></p>
+        <p class="entry-meta">blog post · 2018 · André Arko</p>
+        <p>Hugely influential on how I think about performance. Beyond just motivating me to learn Rust, it changed how I think about memory, allocation, and what's achievable when you take performance seriously. It also shaped my skepticism toward many "big data" systems: a lot of them are slow not because the data is big, but because the tooling is bloated. If your data isn't as large as you think, Spark is probably not the right answer.</p>
+      </div>
+    </section>
+
+    <section id="serverless">
+      <h2>Serverless compute for data</h2>
+
+      <p class="section-note">A thread I explored for a while: could you build a genuinely good distributed data processing system on top of FaaS primitives — Lambda or equivalent — to get massive parallelism without cluster overhead?</p>
+      <p class="section-note">A lot of this is from ~10 years ago(!), but kept for historical interest:</p>
+      <div class="entry">
+        <p class="entry-title"><a href="http://pywren.io/">PyWren</a></p>
+        <p class="entry-meta">project</p>
+        <p>The clearest early implementation of the idea: scale out embarrassingly-parallel Python workloads via Lambda. The motivating question from the paper — "Why is there no cloud button?" — still feels unanswered. A student should be able to push a button and have their existing optimized single-machine code run in the cloud. We still don't really have that.</p>
+      </div>
+
+      <div class="entry">
+        <p class="entry-title"><a href="https://arxiv.org/pdf/1803.06354.pdf">Serverless Data Analytics with Flint</a></p>
+        <p class="entry-meta">paper</p>
+        <p>A Spark execution engine on top of Lambda, plugging in via the <code>SchedulerBackend</code> interface — so you get the same Spark API. Uses SQS for shuffles and intermediate results, which is the hard part of serverless map-reduce architectures.</p>
+      </div>
+
+      <div class="entry">
+        <p class="entry-title"><a href="https://benjamincongdon.me/blog/2018/05/02/Introducing-Corral-A-Serverless-MapReduce-Framework/">Corral: A Serverless MapReduce Framework</a></p>
+        <p class="entry-meta">blog post · Go · open source</p>
+        <p>A serverless MapReduce framework written in Go. Does well on filtering and aggregation; falls flat on joins, for the same fundamental reason as all serverless shuffle problems — no efficient intermediate store. The difficulty with joins has the same root as the difficulty with shuffles, which other attempts (Flint, etc.) remediate through SQS or Elasticache.</p>
+      </div>
+
+      <div class="entry">
+        <p class="entry-title"><a href="http://cidrdb.org/cidr2019/papers/p119-hellerstein-cidr19.pdf">Serverless Computing: One Step Forward, Two Steps Back</a></p>
+        <p class="entry-meta">CIDR 2019 · Hellerstein et al. · paper</p>
+        <p>A principled critique of the serverless-for-data-processing approach. The main problems: (1) no data locality — you ship data to code, not code to data; (2) lambdas aren't network-addressable and can't communicate directly, forcing all coordination through a secondary service; (3) no control over hardware, so no GPU or SIMD acceleration. Worth reading alongside the above.</p>
+        <p>One objection to these objections -- which the authors do note in the paper -- is that designing around these constraints and limitations could inspire more innovative techniques; e.g. the lack (or exorbitant cost) of communication between Lambdas or ordering of their execution incentivizes [https://disorderlylabs.github.io/](disorderly programming), high-level declarative languages, etc.</p>
+      </div>
+    </section>
+
+  </div>
+</body>
+</html>

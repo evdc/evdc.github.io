@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Elysium Playground</title>
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <div id="app">
+      <main class="page">
+        <header class="header">
+          <div>
+            <h1>Elysium Playground</h1>
+            <p class="subtitle">Edit source, compile in-browser, and render the root view.</p>
+          </div>
+          <div class="controls">
+            <button id="reset-button" type="button">Reset</button>
+            <button id="compile-button" class="primary" type="button">Compile</button>
+          </div>
+        </header>
+
+        <section class="layout">
+          <article class="panel">
+            <div class="panel-header">Source</div>
+            <div id="editor"></div>
+            <div id="status" class="status-ok">Ready.</div>
+          </article>
+
+          <article class="panel">
+            <div class="panel-header">Preview</div>
+            <div id="preview-root"></div>
+            <div class="panel-header">
+              <span>Inspector</span>
+              <button id="clear-trace-button" type="button">Clear</button>
+            </div>
+            <pre id="trace-log" style="max-height: 240px; overflow: auto; margin: 0; padding: 12px;"></pre>
+          </article>
+        </section>
+      </main>
+    </div>
+    <script type="module" src="./main.ts"></script>
+  </body>
+</html>
