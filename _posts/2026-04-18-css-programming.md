@@ -253,7 +253,7 @@ This is something SQL couldn't do before the WITH RECURSIVE keyword, which exist
 
 Notice how I never wrote a `for` loop. We didn't have to explicitly say "keep going until you've got everything". The Datalog engine just... figures it out. How?
 
-# 6. The Fix is Fixpoints
+## 6. The Fix is Fixpoints
 
 In normal CSS, the "cascade" is one forward pass: the browser reads all the rules, figures out which selectors match, and applies declarations. There's no feedback loop.
 
@@ -286,16 +286,14 @@ Apply rules again:
   ancestor(alice, dave)  % derived from parent(alice,bob) and ancestor(bob,dave),  by rule 2
 
 Round 3:
-  Applying rules again produces nothing new.
-  
-Fixpoint reached. Done.
+  (Applying rules again produces nothing new. Fixpoint reached)
 ```
 
 Why does this work? The answer is called *monotonicity*. What this means in not academic-speak, in practical terms, is that you only ever add facts, not remove them. Because you start from a finite set of facts, and can only derive a finite amount of facts from those, you can only do a finite amount of work. When you *can* remove facts -- when a later result may cause an earlier result to no longer be true -- you lose this property, and then you're back in Infinite Loop Land. (This is why we maybe don't want CSSLog to allow deleting elements.) [^3]
 
 (It turns out monotonicity is beneficial in other contexts, too, like distributed systems. [^4])
 
-# 7. So What?
+## 7. So What?
 
 Ok, so, we've seen how CSS and Datalog are similar: they have Things ("HTML elements" or "atoms"), they can Describe Sets of Things via conjunctive queries ("selectors" or "rule bodies"), and they can Do Stuff With Those Things (set properties, or derive new facts). Why spend a whole blog post talking about it?
 
@@ -323,37 +321,41 @@ The [CSS Working Group](https://www.w3.org/groups/wg/css/) has been orbiting tow
 
 CSSLog just goes and dunks its whole head in the water, and says boldly, foolishly, "what if we just allowed cycles and evaluated to fixpoint like Datalog has been doing since the 70's?" CSS's answer is, in practice, "No, are you insane? Don't do that". It's a browser rendering engine, not an incremental relational database engine. 
 
-# 8. A New Direction?
+## 8. A New Direction?
 
 Ok, fine, CSS doesn't have Datalog semantics, and it probably never will, and arguably shouldn't. Your browser won't implement CSSLog any time soon.
 
-But what if we flipped it around? Instead of trying to cram Datalog *semantics* into CSS, we could put CSS *syntax* on top of Datalog. Datalog's syntax has always been a bit of an obstacle -- programmers used to modern languages see `:-` and `.` and things like "no = statements" or "case sensitivity" and bounce off. Further, the 
+But what if we flipped it around? Instead of trying to cram Datalog *semantics* into CSS, we could put CSS *syntax* on top of Datalog. Datalog's syntax has always been a bit of an obstacle -- programmers used to modern languages see `:-` and `.` and things like "no = statements" or "case sensitivity" and bounce off. Further, CSS already has a built in notion of tree structure, what with its descendant / child / sibling combinators and all, which plain Datalog has to encode somewhat painfully in relational form. (This is the classic "object/relational impedance mismatch" again, which might as well be called the "tree-shaped / table-shaped impedance mismatch", if you ask me.) 
 
+Much real-world data people want to select or transform happens to be tree-shaped: JSON, ASTs, filesystems, org charts, XML if you're particularly unlucky. A "CSSLog" (with a better name) aimed at that domain, with fixpoint recursion, CSS-flavored syntax for an implicit parent/child relation, and all those other goodies, would let you write recursive tree queries in a notation that a lot more programmers already have the muscle memory for.
+
+As far as I can tell, nobody's quite built that yet. Maybe someone should?
 
 ---
 
 Footnotes
 
-[^1] Some pedant will probably try to jump in and be like, "well *actually* not everything that CSS operates on is an HTML element, what about pseudo--" Shut up, nerd.
+[^1]: Some pedant will probably try to jump in and be like, "well *actually* not everything that CSS operates on is an HTML element, what about pseudo--" Shut up, nerd.
 
-[^2] It's "naive" because it re-evaluates all the already-known facts every time, which is obviously wasteful. The gold standard here is called "semi-naive evaluation", which only looks at the newly derived facts each time. Coming up with a better algorithm, to be termed "not-naive evaluation", is left as an exercise to the reader.
+[^2]: It's "naive" because it re-evaluates all the already-known facts every time, which is obviously wasteful. The gold standard here is called "semi-naive evaluation", which only looks at the newly derived facts each time. Coming up with a better algorithm, to be termed "not-naive evaluation", is left as an exercise to the reader.
 
-[^3] Infinite Loop Land isn't the worst place to live in *all* cases. Every Turing-complete language, including Javascript for instance, lives there. You can of course write `while true {}` all you want. But you probably don't want your browser rendering system, in particular, to hang forever because a frontend dev on some website you visited got confused about their logic.
+[^3]: Infinite Loop Land isn't the worst place to live in *all* cases. Every Turing-complete language, including Javascript for instance, lives there. You can of course write `while true {}` all you want. But you probably don't want your browser rendering system, in particular, to hang forever because a frontend dev on some website you visited got confused about their logic.
 
-[^4] Namely, that those programs that achieve consistency in distributed systems without expensive coordination are precisely those which are in "monotonic" in a way analogous to what we say here, a property called "Consistency As Logical Monotonicity". It's neat. See e.g. [here](http://bloom-lang.net/calm/), or [here](https://arxiv.org/abs/1901.01930) for a paper.
+[^4]: Namely, that those programs that achieve consistency in distributed systems without expensive coordination are precisely those which are in "monotonic" in a way analogous to what we say here, a property called "Consistency As Logical Monotonicity". It's neat. See e.g. [here](http://bloom-lang.net/calm/), or [here](https://arxiv.org/abs/1901.01930) for a paper.
 
-[^5] CSS maestros may point out that you could partially fake it with custom property inheritance. Something like:
-```
-[data-theme="dark"] {
-  --effective-theme: dark;
-}
-[data-theme="light"] {
-  --effective-theme: light;
-}
+[^5]: CSS maestros may point out that you could partially fake it with custom property inheritance. Something like:
 
-@container style(--effective-theme: dark) {
-  :focus { outline-color: white; }
-}
-```
+    ```css
+    [data-theme="dark"] {
+      --effective-theme: dark;
+    }
+    [data-theme="light"] {
+      --effective-theme: light;
+    }
 
-This is a bit hacky but basically works, actually, for this specific case. CSS is pretty good at making hacks look like features, but inheritance is not *actual* transitive closure (e.g. one could imagine transitive closure along a property chain *other than* the parent/child relation built into the DOM structure), and so a slightly more complex version of this problem will break it. It's the principle of the thing!
+    @container style(--effective-theme: dark) {
+      :focus { outline-color: white; }
+    }
+    ```
+
+    This is a bit hacky but basically works, actually, for this specific case. CSS is pretty good at making hacks look like features, but inheritance is not *actual* transitive closure (e.g. one could imagine transitive closure along a property chain *other than* the parent/child relation built into the DOM structure), and so a slightly more complex version of this problem will break it. It's the principle of the thing!

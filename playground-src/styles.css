@@ -8,14 +8,30 @@
   --danger: #cb2d3e;
 }
 
+/* Site nav — consistent with evdc.me branding */
+.site-nav {
+  padding: 8px 20px;
+  background: #01511c;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.8rem;
+}
+
+.site-nav a {
+  color: #c8e8d0;
+  text-decoration: none;
+}
+
+.site-nav a:hover {
+  text-decoration: underline;
+}
+
 * {
   box-sizing: border-box;
 }
 
 body {
   margin: 0;
-  background: radial-gradient(circle at 12% 6%, #d7e9ff 0%, #f4f7fb 36%, #f4f7fb 100%);
-  color: var(--text);
+  /* color: var(--text); */
   font-family: "IBM Plex Sans", "Avenir Next", "Segoe UI", system-ui, sans-serif;
 }
 

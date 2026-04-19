@@ -4,202 +4,35 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Evan Crook</title>
-  <style>
-    @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:ital,wght@0,400;0,500;1,400&family=IBM+Plex+Sans:wght@400;500&display=swap');
-
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
-    :root {
-      --bg: #f6f6ed;
-      --text: #402a02;
-      --muted: #7a5c30;
-      --accent: #01511c;
-      --accent-light: #e6f0e9;
-      --border: #c8c8b8;
-      --mono: 'IBM Plex Mono', monospace;
-      --sans: 'IBM Plex Sans', sans-serif;
-      --max: 680px;
-    }
-
-    body {
-      background: var(--bg);
-      color: var(--text);
-      font-family: var(--sans);
-      font-size: 16px;
-      line-height: 1.7;
-      padding: 3rem 1.5rem 6rem;
-    }
-
-    .container {
-      max-width: var(--max);
-      margin: 0 auto;
-    }
-
-    /* Header */
-    header {
-      margin-bottom: 3.5rem;
-      padding: 1.5rem 1.75rem;
-      background: #01511c;
-      border-radius: 4px;
-    }
-
-    header h1 {
-      font-family: var(--mono);
-      font-size: 1.6rem;
-      font-weight: 500;
-      letter-spacing: -0.02em;
-      margin-bottom: 0.25rem;
-      color: #f6f6ed;
-    }
-
-    .tagline {
-      font-family: var(--mono);
-      font-size: 0.85rem;
-      color: #a8c8b0;
-      margin-bottom: 1.25rem;
-    }
-
-    .nav-links {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 0.5rem 1.25rem;
-      font-family: var(--mono);
-      font-size: 0.8rem;
-    }
-
-    .nav-links a {
-      color: #c8e8d0;
-      text-decoration: none;
-      border-bottom: 1px solid transparent;
-      transition: border-color 0.15s;
-    }
-
-    .nav-links a:hover { border-bottom-color: #c8e8d0; }
-
-    .nav-links .sep { color: #3a7a50; }
-
-    /* Open to work badge */
-    .open-badge {
-      display: inline-block;
-      margin-top: 1rem;
-      padding: 0.3rem 0.7rem;
-      background: rgba(255,255,255,0.1);
-      color: #d8f0e0;
-      font-family: var(--mono);
-      font-size: 0.75rem;
-      border: 1px solid rgba(255,255,255,0.2);
-      border-radius: 3px;
-    }
-
-    /* Sections */
-    section {
-      margin-bottom: 3rem;
-    }
-
-    h2 {
-      font-family: var(--mono);
-      font-size: 0.8rem;
-      font-weight: 500;
-      text-transform: uppercase;
-      letter-spacing: 0.1em;
-      color: var(--muted);
-      margin-bottom: 1.25rem;
-      padding-bottom: 0.4rem;
-      border-bottom: 1px solid var(--border);
-    }
-
-    p { margin-bottom: 1rem; }
-    p:last-child { margin-bottom: 0; }
-
-    a {
-      color: var(--accent);
-      text-decoration: none;
-      border-bottom: 1px solid #7ab890;
-      transition: border-color 0.15s;
-    }
-
-    a:hover { border-bottom-color: var(--accent); }
-
-    /* Project cards */
-    .projects { display: flex; flex-direction: column; gap: 1.5rem; }
-
-    .project {
-      padding: 1.25rem 1.5rem;
-      border: 1px solid var(--border);
-      border-radius: 4px;
-      background: #f0f0e6;
-    }
-
-    .project-header {
-      display: flex;
-      align-items: baseline;
-      gap: 0.75rem;
-      margin-bottom: 0.5rem;
-      flex-wrap: wrap;
-    }
-
-    .project-name {
-      font-family: var(--mono);
-      font-weight: 500;
-      font-size: 0.95rem;
-    }
-
-    .project-links {
-      font-family: var(--mono);
-      font-size: 0.75rem;
-      display: flex;
-      gap: 0.75rem;
-    }
-
-    .project-links a {
-      color: var(--muted);
-      border-bottom-color: transparent;
-    }
-
-    .project-links a:hover { color: var(--accent); border-bottom-color: var(--accent); }
-
-    .project-tech {
-      font-family: var(--mono);
-      font-size: 0.72rem;
-      color: var(--muted);
-      margin-bottom: 0.6rem;
-    }
-
-    .project p {
-      font-size: 0.94rem;
-      color: #402a02;
-      margin-bottom: 0;
-    }
-  </style>
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
   <div class="container">
     <header>
-      <h1>Evan Crook</h1>
-      <p class="tagline">// senior software engineer</p>
+      <h1>evdc.me</h1>
+      <p class="tagline">// "We build our computers the way we build our cities -— over time, without a plan, on top of ruins." -- Ellen Ullman</p>
       <nav class="nav-links">
         <a href="https://github.com/evdc">GitHub</a>
         <span class="sep">·</span>
-        <a href="https://www.linkedin.com/in/evan-crook-8684b95a/">LinkedIn</a>
+        <a href="blog.html">Blog</a>
         <span class="sep">·</span>
         <a href="readings.html">Reading list</a>
-        <span class="sep">·</span>
-        <a href="mailto:evannc@gmail.com">evannc@gmail.com</a>
       </nav>
       <div class="open-badge">↳ open to new roles in data infrastructure &amp; platform engineering</div>
     </header>
 
     <section id="about">
       <h2>About</h2>
-        <p>Welcome to my personal page. I'm glad you're here.</p> 
-        <p>I work as a software engineer, with 10+ years of experience in building data platforms, ETL infrastructure, ML tooling, observability, etc.</p>
-        <p>My technical interests broadly fall into three clusters:</p>
-        <ul>
-          <li>Programming language design, declarative / query languages, relational data modeling, incremental view maintenance, db internals / vectorization, data oriented design, ...</li>
-          <li>Distributed systems (particularly distributed data systems) - performance optimization, design principles, unusual theoretical approaches, etc.</li>
-          <li>Tools for Thought, end-user programming, "the computer as a bicycle for the mind", and how AI can help us out there</li>
-        </ul>
-        <br/><p>At heart, though, I just love building software that is clean, performant, innovative, and pleasant to use.</p>
+      <p>Welcome to my personal page. I'm glad you're here.</p>
+      <p>I work as a software engineer, with 10+ years of experience in building data platforms, ETL infrastructure, ML tooling, observability, etc.</p>
+      <p>My technical interests broadly fall into three clusters:</p>
+      <ul>
+        <li>Programming language design, declarative / query languages, relational data modeling, incremental view maintenance, db internals / vectorization, data oriented design, ...</li>
+        <li>Distributed systems (particularly distributed data systems) - performance optimization, design principles, unusual theoretical approaches, etc.</li>
+        <li>Tools for Thought, end-user programming, "the computer as a bicycle for the mind", and how AI can help us out there</li>
+      </ul>
+      <p>I write about some of them <a href="/blog">here</a>.</p>
+      <p>At heart, though, I just love building software that is clean, performant, innovative, and pleasant to use.</p>
     </section>
 
     <section id="projects">
@@ -216,7 +49,6 @@
           <p class="project-tech">Typescript · programming language design · incremental view maintenance · app development</p>
           <p>A reactive, relational data-centric query language and app development framework - a high-level language for building data-oriented apps, that compiles to JS, featuring an event-sourcing model and incremental view maintenance. Inspired by Differential Dataflow / DBSP, Elm, Mint-lang, Riffle, SolidJS, others. Under active development.</p>
         </div>
-      </div>
 
         <div class="project">
           <div class="project-header">
@@ -236,6 +68,7 @@
           <p class="project-tech">Rust · compiler design</p>
           <p>An experimental programming language, compiler, and runtime in Rust. Building it has been as much about understanding compiler and runtime design from the inside as about the language itself.</p>
         </div>
+
       </div>
     </section>
 

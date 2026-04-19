@@ -1,6 +1,12 @@
 title: evdc's blog
 url: https://evdc.me
 baseurl: ""        # leave empty if serving from root
+
+highlighter: rouge
+markdown: kramdown
+kramdown:
+  syntax_highlighter: rouge
+
 defaults:
   - scope:
       path: "_posts"

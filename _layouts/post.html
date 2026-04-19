@@ -1,15 +1,25 @@
 <!DOCTYPE html>
-<html>
-  <head>
-    <meta charset="utf-8">
-    <title>{{ page.title }}</title>
-    <link rel="stylesheet" href="../new.css">
-  </head>
-  <body>
-    <header><!-- your existing nav/header --></header>
-    <main>
-      <h1>{{ page.title }}</h1>
-      {{ content }}
-    </main>
-  </body>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{{ page.title }} · evdc.me</title>
+  <link rel="stylesheet" href="/style.css">
+  <link rel="stylesheet" href="/syntax.css">
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>evdc.me</h1>
+      <p class="back-link">← <a href="/blog">All posts</a></p>
+    </header>
+    <article>
+      <h2 class="post-title">{{ page.title }}</h2>
+      <p class="post-meta">{{ page.date | date: "%B %-d, %Y" }}</p>
+      <div class="post-content">
+        {{ content }}
+      </div>
+    </article>
+  </div>
+</body>
 </html>

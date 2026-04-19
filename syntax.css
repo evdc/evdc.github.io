@@ -1,0 +1,118 @@
+/*
+ * Syntax highlighting theme — warm parchment/forest-green palette
+ * Targets Rouge output classes used by Jekyll/kramdown.
+ */
+
+:root {
+  --bg: #f6f6ed;
+  --text: #402a02;
+  --muted: #7a5c30;
+  --red: #8b0020;
+  --orange: #a73c00;
+  --yellow: #9d650b;
+  --dgreen: #01511c;
+  --lgreen: #346a02;
+  --blue: #0319ad;
+  --dblue: #081358;
+  --pink: #842865;
+  --accent-light: #e6f0e9;
+  --border: #c8c8b8;
+  --mono: 'IBM Plex Mono', monospace;
+  --sans: 'IBM Plex Sans', sans-serif;
+  --max: 680px;
+}
+
+.highlight {
+  background: #e8e8d8;
+  border-radius: 4px;
+  padding: 1rem 1.25rem;
+  overflow-x: auto;
+  margin-bottom: 1rem;
+  line-height: 1.55;
+}
+
+.highlight pre { margin: 0; }
+
+/* Override the plain <code> style inside highlight blocks */
+.highlight code {
+  background: none;
+  padding: 0;
+  font-size: 0.85em;
+  color: #402a02;
+}
+
+/* ── Token colors ── */
+
+/* Keywords: if, def, return, let, const, fn, ... */
+.highlight .k,
+.highlight .kd,
+.highlight .kn,
+.highlight .kp,
+.highlight .kr,
+.highlight .kw { color: var(--dgreen); font-weight: 500; }
+
+/* Keyword type: int, bool, str */
+.highlight .kt { color: #2a5c20; font-style: italic; }
+
+/* Strings */
+.highlight .s,
+.highlight .s1,
+.highlight .s2,
+.highlight .sb,
+.highlight .sc,
+.highlight .sd,
+.highlight .sh,
+.highlight .sx { color: var(--lgreen); }
+
+/* String interpolation / regex */
+.highlight .si,
+.highlight .sr,
+.highlight .se { color: #7a3a10; }
+
+/* Comments */
+.highlight .c,
+.highlight .c1,
+.highlight .cm,
+.highlight .cs,
+.highlight .cp { color: #9a8060; font-style: italic; }
+
+/* Numbers */
+.highlight .m,
+.highlight .mi,
+.highlight .mf,
+.highlight .mh,
+.highlight .mo { color: var(--red); }
+
+/* Function / method names */
+.highlight .nf { color: var(--blue); }
+
+/* Class / type names */
+.highlight .nc { color: #2a5c14; font-weight: 500; }
+
+/* Constants */
+.highlight .no { color: #7a3a00; }
+
+/* Builtins (print, len, etc.) */
+.highlight .nb { color: #3a5a10; }
+
+/* Name variable */
+.highlight .nv { color: #402a02; }
+
+/* Operators: +, -, =>, |> */
+.highlight .o,
+.highlight .ow { color: var(--orange); }
+
+/* Punctuation: () [] {} ; , */
+.highlight .p { color: #6a5030; }
+
+/* Decorators / annotations */
+.highlight .nd { color: var(--pink); }
+
+/* Error token */
+.highlight .err { color: #cb2d3e; }
+
+/* Generic: diff output, etc. */
+.highlight .ge { font-style: italic; }
+.highlight .gs { font-weight: bold; }
+.highlight .gd { color: #8c2a02; background: #f5e0d8; }
+.highlight .gi { color: #01511c; background: #daf0e0; }

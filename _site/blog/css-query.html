@@ -1,15 +1,23 @@
 <!DOCTYPE html>
-<html>
-  <head>
-    <meta charset="utf-8">
-    <title>CSS As A Query Language</title>
-    <link rel="stylesheet" href="../new.css">
-  </head>
-  <body>
-    <header><!-- your existing nav/header --></header>
-    <main>
-      <h1>CSS As A Query Language</h1>
-      <p>IN which we investigate using CSS as a query language, or even a general purpose programming language, to do things other than lay out web pages in a browser.</p>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>CSS As A Query Language · evdc.me</title>
+  <link rel="stylesheet" href="/style.css">
+  <link rel="stylesheet" href="/syntax.css">
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>evdc.me</h1>
+      <p class="back-link">← <a href="/blog">All posts</a></p>
+    </header>
+    <article>
+      <h2 class="post-title">CSS As A Query Language</h2>
+      <p class="post-meta">April 18, 2026</p>
+      <div class="post-content">
+        <p>IN which we investigate using CSS as a query language, or even a general purpose programming language, to do things other than lay out web pages in a browser.</p>
 
 <p>Question: Why in God’s good name would you do that? CSS is <a href="https://media1.tenor.com/m/QWdPngpHxZ8AAAAd/family-guy-css.gif">infamously confusing</a>. And better query languages exist, right? Such as SQL, which famously <a href="https://www.scattered-thoughts.net/writing/against-sql/">doesn’t have problems</a>.</p>
 
@@ -31,7 +39,7 @@
 <span class="nt">&lt;/div&gt;</span>
 </code></pre></div></div>
 
-<p>Specifically, here, Things are <em>HTML elements</em>.[^1]</p>
+<p>Specifically, here, Things are <em>HTML elements</em>.<sup id="fnref:1" role="doc-noteref"><a href="#fn:1" class="footnote" rel="footnote">1</a></sup></p>
 
 <h2 id="2-we-can-describe-sets-of-things">2. We can Describe Sets of Things</h2>
 
@@ -244,7 +252,7 @@ ancestor(alice, dave).  % alice -&gt; bob -&gt; dave, from rule 2
 
 <p>Notice how I never wrote a <code class="language-plaintext highlighter-rouge">for</code> loop. We didn’t have to explicitly say “keep going until you’ve got everything”. The Datalog engine just… figures it out. How?</p>
 
-<h1 id="6-the-fix-is-fixpoints">6. The Fix is Fixpoints</h1>
+<h2 id="6-the-fix-is-fixpoints">6. The Fix is Fixpoints</h2>
 
 <p>In normal CSS, the “cascade” is one forward pass: the browser reads all the rules, figures out which selectors match, and applies declarations. There’s no feedback loop.</p>
 
@@ -259,7 +267,7 @@ ancestor(alice, dave).  % alice -&gt; bob -&gt; dave, from rule 2
   <li>If you didn’t, stop. You’re done.</li>
 </ol>
 
-<p>This is called “naive evaluation”. It runs until the set of known facts stops growing, which is called the <em>fixpoint</em> — the point where applying all the rules produces nothing you didn’t already have. [^2]</p>
+<p>This is called “naive evaluation”. It runs until the set of known facts stops growing, which is called the <em>fixpoint</em> — the point where applying all the rules produces nothing you didn’t already have. <sup id="fnref:2" role="doc-noteref"><a href="#fn:2" class="footnote" rel="footnote">2</a></sup></p>
 
 <p>For the ancestor example, this looks like:</p>
 
@@ -278,16 +286,14 @@ Apply rules again:
   ancestor(alice, dave)  % derived from parent(alice,bob) and ancestor(bob,dave),  by rule 2
 
 Round 3:
-  Applying rules again produces nothing new.
-  
-Fixpoint reached. Done.
+  (Applying rules again produces nothing new. Fixpoint reached)
 </code></pre></div></div>
 
-<p>Why does this work? The answer is called <em>monotonicity</em>. What this means in not academic-speak, in practical terms, is that you only ever add facts, not remove them. Because you start from a finite set of facts, and can only derive a finite amount of facts from those, you can only do a finite amount of work. When you <em>can</em> remove facts – when a later result may cause an earlier result to no longer be true – you lose this property, and then you’re back in Infinite Loop Land. (This is why we maybe don’t want CSSLog to allow deleting elements.) [^3]</p>
+<p>Why does this work? The answer is called <em>monotonicity</em>. What this means in not academic-speak, in practical terms, is that you only ever add facts, not remove them. Because you start from a finite set of facts, and can only derive a finite amount of facts from those, you can only do a finite amount of work. When you <em>can</em> remove facts – when a later result may cause an earlier result to no longer be true – you lose this property, and then you’re back in Infinite Loop Land. (This is why we maybe don’t want CSSLog to allow deleting elements.) <sup id="fnref:3" role="doc-noteref"><a href="#fn:3" class="footnote" rel="footnote">3</a></sup></p>
 
-<p>(It turns out monotonicity is beneficial in other contexts, too, like distributed systems. [^4])</p>
+<p>(It turns out monotonicity is beneficial in other contexts, too, like distributed systems. <sup id="fnref:4" role="doc-noteref"><a href="#fn:4" class="footnote" rel="footnote">4</a></sup>)</p>
 
-<h1 id="7-so-what">7. So What?</h1>
+<h2 id="7-so-what">7. So What?</h2>
 
 <p>Ok, so, we’ve seen how CSS and Datalog are similar: they have Things (“HTML elements” or “atoms”), they can Describe Sets of Things via conjunctive queries (“selectors” or “rule bodies”), and they can Do Stuff With Those Things (set properties, or derive new facts). Why spend a whole blog post talking about it?</p>
 
@@ -308,7 +314,7 @@ But the transitive-dark-mode example from section 3 above is subtly different: i
   <li>It needs to stop propagating when it hits data-theme=”light”.</li>
 </ol>
 
-<p>Container queries can’t do step 2. You can query an ancestor’s –theme custom property, but you can’t query whether an ancestor has already been determined to be effectively-dark by another rule. The query reads from the DOM as-given; it doesn’t see derived state. There’s no way to write “apply this if any ancestor, transitively, has –theme: dark and no closer ancestor has –theme: light” — because that’s asking for the result of a recursive computation, and container queries have no recursion. [^5]</p>
+<p>Container queries can’t do step 2. You can query an ancestor’s –theme custom property, but you can’t query whether an ancestor has already been determined to be effectively-dark by another rule. The query reads from the DOM as-given; it doesn’t see derived state. There’s no way to write “apply this if any ancestor, transitively, has –theme: dark and no closer ancestor has –theme: light” — because that’s asking for the result of a recursive computation, and container queries have no recursion. <sup id="fnref:5" role="doc-noteref"><a href="#fn:5" class="footnote" rel="footnote">5</a></sup></p>
 
 <p>An <a href="https://alistapart.com/article/container-queries-once-more-unto-the-breach/">article from 2015</a> explains the motivation and limitations of this. The earlier “element queries” proposal kept failing for much the same reasons discussed here – once you can query on a property that’s also being set by a query, you can cause loops, potentially infinite ones.</p>
 
@@ -316,39 +322,56 @@ But the transitive-dark-mode example from section 3 above is subtly different: i
 
 <p>CSSLog just goes and dunks its whole head in the water, and says boldly, foolishly, “what if we just allowed cycles and evaluated to fixpoint like Datalog has been doing since the 70’s?” CSS’s answer is, in practice, “No, are you insane? Don’t do that”. It’s a browser rendering engine, not an incremental relational database engine.</p>
 
-<h1 id="8-a-new-direction">8. A New Direction?</h1>
+<h2 id="8-a-new-direction">8. A New Direction?</h2>
 
 <p>Ok, fine, CSS doesn’t have Datalog semantics, and it probably never will, and arguably shouldn’t. Your browser won’t implement CSSLog any time soon.</p>
 
-<p>But what if we flipped it around? Instead of trying to cram Datalog <em>semantics</em> into CSS, we could put CSS <em>syntax</em> on top of Datalog. Datalog’s syntax has always been a bit of an obstacle – programmers used to modern languages see <code class="language-plaintext highlighter-rouge">:-</code> and <code class="language-plaintext highlighter-rouge">.</code> and things like “no = statements” or “case sensitivity” and bounce off. Further, the</p>
+<p>But what if we flipped it around? Instead of trying to cram Datalog <em>semantics</em> into CSS, we could put CSS <em>syntax</em> on top of Datalog. Datalog’s syntax has always been a bit of an obstacle – programmers used to modern languages see <code class="language-plaintext highlighter-rouge">:-</code> and <code class="language-plaintext highlighter-rouge">.</code> and things like “no = statements” or “case sensitivity” and bounce off. Further, CSS already has a built in notion of tree structure, what with its descendant / child / sibling combinators and all, which plain Datalog has to encode somewhat painfully in relational form. (This is the classic “object/relational impedance mismatch” again, which might as well be called the “tree-shaped / table-shaped impedance mismatch”, if you ask me.)</p>
+
+<p>Much real-world data people want to select or transform happens to be tree-shaped: JSON, ASTs, filesystems, org charts, XML if you’re particularly unlucky. A “CSSLog” (with a better name) aimed at that domain, with fixpoint recursion, CSS-flavored syntax for an implicit parent/child relation, and all those other goodies, would let you write recursive tree queries in a notation that a lot more programmers already have the muscle memory for.</p>
+
+<p>As far as I can tell, nobody’s quite built that yet. Maybe someone should?</p>
 
 <hr />
 
 <p>Footnotes</p>
 
-<p>[^1] Some pedant will probably try to jump in and be like, “well <em>actually</em> not everything that CSS operates on is an HTML element, what about pseudo–” Shut up, nerd.</p>
+<div class="footnotes" role="doc-endnotes">
+  <ol>
+    <li id="fn:1" role="doc-endnote">
+      <p>Some pedant will probably try to jump in and be like, “well <em>actually</em> not everything that CSS operates on is an HTML element, what about pseudo–” Shut up, nerd. <a href="#fnref:1" class="reversefootnote" role="doc-backlink">&#8617;</a></p>
+    </li>
+    <li id="fn:2" role="doc-endnote">
+      <p>It’s “naive” because it re-evaluates all the already-known facts every time, which is obviously wasteful. The gold standard here is called “semi-naive evaluation”, which only looks at the newly derived facts each time. Coming up with a better algorithm, to be termed “not-naive evaluation”, is left as an exercise to the reader. <a href="#fnref:2" class="reversefootnote" role="doc-backlink">&#8617;</a></p>
+    </li>
+    <li id="fn:3" role="doc-endnote">
+      <p>Infinite Loop Land isn’t the worst place to live in <em>all</em> cases. Every Turing-complete language, including Javascript for instance, lives there. You can of course write <code class="language-plaintext highlighter-rouge">while true {}</code> all you want. But you probably don’t want your browser rendering system, in particular, to hang forever because a frontend dev on some website you visited got confused about their logic. <a href="#fnref:3" class="reversefootnote" role="doc-backlink">&#8617;</a></p>
+    </li>
+    <li id="fn:4" role="doc-endnote">
+      <p>Namely, that those programs that achieve consistency in distributed systems without expensive coordination are precisely those which are in “monotonic” in a way analogous to what we say here, a property called “Consistency As Logical Monotonicity”. It’s neat. See e.g. <a href="http://bloom-lang.net/calm/">here</a>, or <a href="https://arxiv.org/abs/1901.01930">here</a> for a paper. <a href="#fnref:4" class="reversefootnote" role="doc-backlink">&#8617;</a></p>
+    </li>
+    <li id="fn:5" role="doc-endnote">
+      <p>CSS maestros may point out that you could partially fake it with custom property inheritance. Something like:</p>
 
-<p>[^2] It’s “naive” because it re-evaluates all the already-known facts every time, which is obviously wasteful. The gold standard here is called “semi-naive evaluation”, which only looks at the newly derived facts each time. Coming up with a better algorithm, to be termed “not-naive evaluation”, is left as an exercise to the reader.</p>
+      <div class="language-css highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="o">[</span><span class="nt">data-theme</span><span class="o">=</span><span class="s1">"dark"</span><span class="o">]</span> <span class="p">{</span>
+  <span class="py">--effective-theme</span><span class="p">:</span> <span class="n">dark</span><span class="p">;</span>
+<span class="p">}</span>
+<span class="o">[</span><span class="nt">data-theme</span><span class="o">=</span><span class="s1">"light"</span><span class="o">]</span> <span class="p">{</span>
+  <span class="py">--effective-theme</span><span class="p">:</span> <span class="n">light</span><span class="p">;</span>
+<span class="p">}</span>
 
-<p>[^3] Infinite Loop Land isn’t the worst place to live in <em>all</em> cases. Every Turing-complete language, including Javascript for instance, lives there. You can of course write <code class="language-plaintext highlighter-rouge">while true {}</code> all you want. But you probably don’t want your browser rendering system, in particular, to hang forever because a frontend dev on some website you visited got confused about their logic.</p>
+<span class="k">@container</span> <span class="n">style</span><span class="p">(</span><span class="n">--effective-theme</span><span class="p">:</span> <span class="n">dark</span><span class="p">)</span> <span class="p">{</span>
+  <span class="nd">:focus</span> <span class="p">{</span> <span class="nl">outline-color</span><span class="p">:</span> <span class="no">white</span><span class="p">;</span> <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div>      </div>
 
-<p>[^4] Namely, that those programs that achieve consistency in distributed systems without expensive coordination are precisely those which are in “monotonic” in a way analogous to what we say here, a property called “Consistency As Logical Monotonicity”. It’s neat. See e.g. <a href="http://bloom-lang.net/calm/">here</a>, or <a href="https://arxiv.org/abs/1901.01930">here</a> for a paper.</p>
+      <p>This is a bit hacky but basically works, actually, for this specific case. CSS is pretty good at making hacks look like features, but inheritance is not <em>actual</em> transitive closure (e.g. one could imagine transitive closure along a property chain <em>other than</em> the parent/child relation built into the DOM structure), and so a slightly more complex version of this problem will break it. It’s the principle of the thing! <a href="#fnref:5" class="reversefootnote" role="doc-backlink">&#8617;</a></p>
+    </li>
+  </ol>
+</div>
 
-<p>[^5] CSS maestros may point out that you could partially fake it with custom property inheritance. Something like:</p>
-<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>[data-theme="dark"] {
-  --effective-theme: dark;
-}
-[data-theme="light"] {
-  --effective-theme: light;
-}
-
-@container style(--effective-theme: dark) {
-  :focus { outline-color: white; }
-}
-</code></pre></div></div>
-
-<p>This is a bit hacky but basically works, actually, for this specific case. CSS is pretty good at making hacks look like features, but inheritance is not <em>actual</em> transitive closure (e.g. one could imagine transitive closure along a property chain <em>other than</em> the parent/child relation built into the DOM structure), and so a slightly more complex version of this problem will break it. It’s the principle of the thing!</p>
-
-    </main>
-  </body>
+      </div>
+    </article>
+  </div>
+</body>
 </html>
