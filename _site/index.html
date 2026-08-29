@@ -18,20 +18,26 @@
         <span class="sep">·</span>
         <a href="readings.html">Reading list</a>
       </nav>
-      <div class="open-badge">↳ open to new roles in data infrastructure &amp; platform engineering</div>
+      <div class="open-badge">↳ open to new roles in data infrastructure, inference, AI and systems engineering</div>
     </header>
 
     <section id="about">
       <h2>About</h2>
       <p>Welcome to my personal page. I'm glad you're here.</p>
       <p>I work as a software engineer, with 10+ years of experience in building data platforms, ETL infrastructure, ML tooling, observability, etc.</p>
-      <p>My technical interests broadly fall into three clusters:</p>
+      <p>My technical interests broadly fall into four clusters:</p>
       <ul>
         <li>Programming language design, declarative / query languages, relational data modeling, incremental view maintenance, db internals / vectorization, data oriented design, ...</li>
         <li>Distributed systems (particularly distributed data systems) - performance optimization, design principles, unusual theoretical approaches, etc.</li>
+        <li>LLM inference and serving: scheduling, batching, KV-cache management, quantization, graph compilation.</li>
         <li>Tools for Thought, end-user programming, "the computer as a bicycle for the mind", and how AI can help us out there</li>
       </ul>
       <p>I write about some of them <a href="/blog">here</a>.</p>
+      <p>
+        Lately I've been pulling these threads toward LLM inference. Serving systems involve a compiler + scheduler + <a href="https://martinfowler.com/bliki/TwoHardThings.html">cache invalidation</a>,
+        which is kind of what an IVM/distributed data system looks like too if you squint at it through a particular lens. Query planning, inference-graph optimizaiton, KV-cache reuse, etc. 
+        I'm looking for new roles at that intersection.
+      </p>
       <p>At heart, though, I just love building software that is clean, performant, innovative, and pleasant to use.</p>
     </section>
 
@@ -47,7 +53,8 @@
             </div>
           </div>
           <p class="project-tech">Typescript · programming language design · incremental view maintenance · app development</p>
-          <p>A reactive, relational data-centric query language and app development framework - a high-level language for building data-oriented apps, that compiles to JS, featuring an event-sourcing model and incremental view maintenance. Inspired by Differential Dataflow / DBSP, Elm, Mint-lang, Riffle, SolidJS, others. Under active development.</p>
+          <p>Build an app as a query: write declarative relational queries for UI, compile to JS with reactive incremental view maintenance.
+            Inspired by Differential Dataflow / DBSP, Elm, Mint-lang, Riffle, SolidJS, others.</p>
         </div>
 
         <div class="project">
@@ -66,7 +73,7 @@
             </div>
           </div>
           <p class="project-tech">Rust · compiler design</p>
-          <p>An experimental programming language, compiler, and runtime in Rust. Building it has been as much about understanding compiler and runtime design from the inside as about the language itself.</p>
+          <p>An experimental programming language, compiler, and runtime in Rust. Static types, mutable value semantics, lightweight syntax.</p>
         </div>
 
       </div>

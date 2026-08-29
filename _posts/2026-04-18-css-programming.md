@@ -6,17 +6,17 @@ permalink: /blog/css-query
 
 IN which we investigate using CSS as a query language, or even a general purpose programming language, to do things other than lay out web pages in a browser.
 
-Question: Why in God's good name would you do that? CSS is [infamously confusing](https://media1.tenor.com/m/QWdPngpHxZ8AAAAd/family-guy-css.gif). And better query languages exist, right? Such as SQL, which famously [doesn't have problems](https://www.scattered-thoughts.net/writing/against-sql/).
+Question: Why in the name of the Earth would you do that? CSS is [infamously confusing](https://media1.tenor.com/m/QWdPngpHxZ8AAAAd/family-guy-css.gif). And better query languages exist, right? Such as SQL, which famously [doesn't have problems](https://www.scattered-thoughts.net/writing/against-sql/).
 
 Answer: [Because it's there.](https://en.wikipedia.org/wiki/George_Mallory#:~:text=When%20asked%20by%20a%20reporter%20why%20he%20wanted%20to%20climb%20Everest%2C%20Mallory%20purportedly%20replied%2C%20%22Because%20it%27s%20there.%22)
 
 ---
 
-The basic principles of CSS look like this.
+CSS is a language for doing layout in web design, describing how things on a webpage should be arranged and how they should look. The basic principles of CSS look like this:
 
 ## 1. There are Things
 
-"Things" are "domain entities", or "atoms", or "facts". They exist outside of CSS -- from CSS's perspective, they're just already and always there.
+"Things" are "domain entities" or "atoms" or "facts". They exist outside of CSS -- from CSS's perspective, they're just already and always there.
 
 Such as:
 ```html
@@ -86,7 +86,7 @@ There's a way to answer this. We'll get there.
 
 Here's something you might (possibly) actually want to do as a web developer.
 
-You're building a design system. You have a "dark mode" aware component — a card with `data-theme="dark"` — and you want every interactive element anywhere inside it, no matter how deeply nested, to get inverted focus styles. Not just direct children, but any descendant, transitively, *unless* some intermediate component has explicitly opted out with `data-theme="light"`. ("But what if that's bad design?" The PM insists that it is, and the manager likes her more than you, so.)
+You're building a design system. You have a "dark mode" aware component — a card with `data-theme="dark"` — and you want every interactive element anywhere inside it, no matter how deeply nested, to get inverted focus styles. Not just direct children, but any descendant, transitively, *unless* some intermediate component has explicitly opted out with `data-theme="light"`. ("But what if that's not good design?" The PM insists that it is, and the manager likes her more than you, so.)
 
 In real CSS, you write:
 

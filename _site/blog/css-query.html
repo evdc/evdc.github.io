@@ -19,17 +19,17 @@
       <div class="post-content">
         <p>IN which we investigate using CSS as a query language, or even a general purpose programming language, to do things other than lay out web pages in a browser.</p>
 
-<p>Question: Why in God’s good name would you do that? CSS is <a href="https://media1.tenor.com/m/QWdPngpHxZ8AAAAd/family-guy-css.gif">infamously confusing</a>. And better query languages exist, right? Such as SQL, which famously <a href="https://www.scattered-thoughts.net/writing/against-sql/">doesn’t have problems</a>.</p>
+<p>Question: Why in the name of the Earth would you do that? CSS is <a href="https://media1.tenor.com/m/QWdPngpHxZ8AAAAd/family-guy-css.gif">infamously confusing</a>. And better query languages exist, right? Such as SQL, which famously <a href="https://www.scattered-thoughts.net/writing/against-sql/">doesn’t have problems</a>.</p>
 
 <p>Answer: <a href="https://en.wikipedia.org/wiki/George_Mallory#:~:text=When%20asked%20by%20a%20reporter%20why%20he%20wanted%20to%20climb%20Everest%2C%20Mallory%20purportedly%20replied%2C%20%22Because%20it%27s%20there.%22">Because it’s there.</a></p>
 
 <hr />
 
-<p>The basic principles of CSS look like this.</p>
+<p>CSS is a language for doing layout in web design, describing how things on a webpage should be arranged and how they should look. The basic principles of CSS look like this:</p>
 
 <h2 id="1-there-are-things">1. There are Things</h2>
 
-<p>“Things” are “domain entities”, or “atoms”, or “facts”. They exist outside of CSS – from CSS’s perspective, they’re just already and always there.</p>
+<p>“Things” are “domain entities” or “atoms” or “facts”. They exist outside of CSS – from CSS’s perspective, they’re just already and always there.</p>
 
 <p>Such as:</p>
 <div class="language-html highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nt">&lt;h1&gt;</span>Hello, World!<span class="nt">&lt;/h1&gt;</span>
@@ -94,7 +94,7 @@
 
 <p>Here’s something you might (possibly) actually want to do as a web developer.</p>
 
-<p>You’re building a design system. You have a “dark mode” aware component — a card with <code class="language-plaintext highlighter-rouge">data-theme="dark"</code> — and you want every interactive element anywhere inside it, no matter how deeply nested, to get inverted focus styles. Not just direct children, but any descendant, transitively, <em>unless</em> some intermediate component has explicitly opted out with <code class="language-plaintext highlighter-rouge">data-theme="light"</code>. (“But what if that’s bad design?” The PM insists that it is, and the manager likes her more than you, so.)</p>
+<p>You’re building a design system. You have a “dark mode” aware component — a card with <code class="language-plaintext highlighter-rouge">data-theme="dark"</code> — and you want every interactive element anywhere inside it, no matter how deeply nested, to get inverted focus styles. Not just direct children, but any descendant, transitively, <em>unless</em> some intermediate component has explicitly opted out with <code class="language-plaintext highlighter-rouge">data-theme="light"</code>. (“But what if that’s not good design?” The PM insists that it is, and the manager likes her more than you, so.)</p>
 
 <p>In real CSS, you write:</p>
 

@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Everything Is A Maintained Relation · evdc.me</title>
+  <link rel="stylesheet" href="/style.css">
+  <link rel="stylesheet" href="/syntax.css">
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>evdc.me</h1>
+      <p class="back-link">← <a href="/blog">All posts</a></p>
+    </header>
+    <article>
+      <h2 class="post-title">Everything Is A Maintained Relation</h2>
+      <p class="post-meta">August 29, 2026</p>
+      <div class="post-content">
+        <p>In which I attempt to explain what I’m on about.</p>
+
+<p>My <a href="/blog/css-query">previous posts</a> have been orbiting some common themes, circling them like water around a bathtub drain. This post is an attempt to bring them together and say the thing directly.</p>
+
+<p>It goes roughly like this:</p>
+
+<ul>
+  <li>A lot of software suffers from <a href="https://curtclifton.net/papers/MoseleyMarks06a.pdf">“accidental complexity”</a>, and we would like less of it.</li>
+  <li>There is a model of computation with the basic shape of:
+    <ul>
+      <li>There are <strong>Things</strong> (facts, atoms, domain entities, rows, records, …)</li>
+      <li>We can <strong>describe sets of related Things</strong></li>
+      <li>We can <strong>do stuff to those sets</strong></li>
+    </ul>
+  </li>
+  <li>Add a notion of <em>events</em> and an <em>execution cycle</em> that proceeds in discrete steps, and this shape fits a surprising number of domains, if you squint.</li>
+  <li>Modeling the state of such a system <em>relationally</em> <a href="https://curtclifton.net/papers/MoseleyMarks06a.pdf">avoids some problems</a> with modeling it as a graph of mutable objects — and, crucially, it makes the whole thing <a href="https://materializedview.io/p/everything-to-know-incremental-view-maintenance">incrementally maintainable</a>, thanks to work like <a href="https://www.vldb.org/pvldb/vol16/p1601-budiu.pdf">DBSP</a>.</li>
+  <li>A new language, runtime, or platform can unify all of the above, and make complex systems easier for both humans and LLMs to build and reason about.</li>
+</ul>
+
+<p>My work is an attempt to build the latter.</p>
+
+<p>The one-sentence version, which is also the title: <strong>a query, a constraint, and a rendered list are the same construct — a relation maintained under change.</strong> If you take that seriously, a lot of machinery you thought you needed turns out to be one mechanism wearing four hats.</p>
+
+<hr />
+
+<h2 id="part-1-the-shape">Part 1: The Shape</h2>
+
+<p>I’ve covered the first three bullets at length elsewhere, so here’s the compressed version.<sup id="fnref:recap" role="doc-noteref"><a href="#fn:recap" class="footnote" rel="footnote">1</a></sup></p>
+
+<p><strong>There are Things.</strong> In CSS they’re HTML elements. In an entity-component-system game engine they’re entities — players, monsters, bullets, powerups, flying sharks. In SQL they’re rows. In Datalog they’re atoms. In your app they’re the domain objects you’d draw on a whiteboard before anyone says the word “framework.”</p>
+
+<p><strong>We can describe sets of related Things.</strong> CSS calls this a selector. SQL calls it a <code class="language-plaintext highlighter-rouge">WHERE</code> clause. Datalog calls it a rule body. An ECS calls it a query over component types. They are all the same move: <em>name a set by what its members have in common, rather than by enumerating them.</em></p>
+
+<p><strong>We can do stuff to those sets.</strong> Set properties on all of them at once. Delete them. Derive new Things from them. CSS declarations, SQL <code class="language-plaintext highlighter-rouge">UPDATE</code>, Datalog rule heads, ECS systems.</p>
+
+<p>Three languages that look nothing alike, doing the same three things. That’s not a coincidence, that’s a model of computation with several independent discoveries.</p>
+
+<h2 id="part-2-time-ruins-everything">Part 2: Time Ruins Everything</h2>
+
+<p>Here’s where the previous posts stopped, because this is the part that’s actually hard.</p>
+
+<p>Suppose we have the set of all Things that are Red and the set of all Things that are Blue. And suppose we write a rule:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>for all Things that are Red -&gt; make them Blue
+</code></pre></div></div>
+
+<p>Fine. Run it. Now what?</p>
+
+<p>Now every formerly-Red Thing is Blue. So the rule matches nothing, so it doesn’t run, so… does it stay Blue? Does the rule notice that its own precondition is now false and undo itself? If another rule says “for all Things that are Blue, make them Red,” do we flicker forever?</p>
+
+<p>I raised exactly this in the CSS post and cheerfully deferred it:</p>
+
+<blockquote>
+  <p>What does it mean to say “for all elements with color red, their color is blue”? Does it render red for a second and then flicker to blue? Does it flicker back and forth? Does it just say this is a contradiction, like 3 = 4, and give up?</p>
+
+  <p>There’s a way to answer this. We’ll get there.</p>
+</blockquote>
+
+<p>We’re here. The answer is that <strong>rules are not eternal truths, they are things that happen at a time</strong>, and you have to say so explicitly.</p>
+
+<p>The model needs a <em>cycle</em>:</p>
+
+<ol>
+  <li>Inputs arrive from outside — a click, a keystroke, an HTTP request, a tick of the game clock. Call these <strong>events</strong>. Nothing else changes the world.</li>
+  <li>The world advances one <strong>step</strong>. Inside a step, rules read a <em>fixed snapshot</em> of the world as it was at the start, and their effects accumulate into the world as it will be at the end.</li>
+  <li>Between steps, nothing is half-updated. You never observe a torn state.</li>
+</ol>
+
+<p>That single discipline dissolves the paradox. “For all Red things, make them Blue” reads Red-ness from the <em>before</em> state and writes Blue-ness to the <em>after</em> state. It doesn’t flicker, and it doesn’t chase its own tail, because the thing it’s reading and the thing it’s writing are separated in time by construction. If you want an oscillator you have to ask for one across two steps, which is honest.</p>
+
+<p>This is not exotic. It’s a render frame in a browser. It’s a tick in a game loop. It’s a transaction in a database. It’s — sort of, squintingly, with several asterisks — a render pass in React. Every system in this shape reinvents the step, usually informally and usually incorrectly around the edges. The proposal is to make it the load-bearing primitive instead of an emergent property of the framework’s internals.</p>
+
+<p>There’s real prior art on the “put time in the relational language” problem specifically: Hellerstein’s <a href="https://bloom-lang.net/">Dedalus and Bloom</a> are the serious version of this idea, and if the above felt hand-wavy, that’s where to go next.</p>
+
+<h2 id="part-3-doing-it-all-again-is-wasteful">Part 3: Doing It All Again Is Wasteful</h2>
+
+<p>So we have a cycle. The naive implementation is: every step, re-run every rule over every Thing.</p>
+
+<p>CSS basically does this. An ECS deliberately does this, and gets away with it because the data is small, contiguous, and the recompute is a tight loop over packed arrays — <a href="https://www.dataorienteddesign.com/dodbook/">data-oriented design</a> makes brute force cheaper than cleverness at that scale.</p>
+
+<p>It stops being fine the moment your set of Things is the size of a database. You do not want to re-run every derived view over every row because one row changed. And “one row changed” is what <em>actually happens</em>, essentially always. Real systems experience small perturbations of large states.</p>
+
+<p>So: don’t recompute the answer. <strong>Maintain</strong> it.</p>
+
+<p>The trick is to make <em>change itself</em> a first-class value. Instead of passing around “the set of Things,” you pass around “what’s different about the set of Things,” and every operator learns how to consume and produce differences.</p>
+
+<p>The representation that makes this work cleanly is a <strong>Z-set</strong>: a set where every element carries an integer weight. Weight <code class="language-plaintext highlighter-rouge">+1</code> means “this row is here.” Weight <code class="language-plaintext highlighter-rouge">-1</code> means “retract this row.” A change is just a Z-set:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>+1  (card7, "Buy milk")      -- inserted
+-1  (card3, "Call mom")      -- deleted
+</code></pre></div></div>
+
+<p>Weights add. A <code class="language-plaintext highlighter-rouge">+1</code> and a <code class="language-plaintext highlighter-rouge">-1</code> for the same row cancel to zero and the row vanishes from the delta, which means <em>the algebra takes care of bookkeeping you would otherwise do by hand and get wrong.</em> Filters, projections, joins, aggregates, even recursive fixpoints all have delta versions — versions that take a change to their inputs and produce a change to their outputs, doing work proportional to the size of the change rather than the size of the data.</p>
+
+<p>This is the <a href="https://www.vldb.org/pvldb/vol16/p1601-budiu.pdf">DBSP</a> result, building on <a href="https://github.com/TimelyDataflow/differential-dataflow">Differential Dataflow</a> before it. I want to be clear that this part is not my idea; it’s a genuinely beautiful piece of work by other people, and it’s the thing that converts the model in Parts 1 and 2 from “elegant but quadratic” into “elegant and shippable.”</p>
+
+<p>What <em>is</em> my contention is where you point it.</p>
+
+<h2 id="part-4-the-user-interface-is-also-a-query">Part 4: The User Interface Is Also A Query</h2>
+
+<p>Here’s the move the whole project rests on.</p>
+
+<p>A rendered list is a query result. Not “like” a query result — it <em>is</em> one. The list of visible todos on your screen is <code class="language-plaintext highlighter-rouge">SELECT * FROM todos WHERE NOT completed ORDER BY position</code>, and the DOM nodes are its materialization. Everyone knows this and almost nobody builds on it.</p>
+
+<p>The dominant approach instead is: re-derive the entire UI as a data structure, then <em>diff it against the one you built last time</em> to figure out what changed. That’s a virtual DOM. It’s a clever solution to a problem you created by throwing away information you already had. The framework knew what changed — the change is what caused the re-render in the first place! — and then discarded that knowledge, rebuilt the world, and went looking for it again with a tree diff.</p>
+
+<p>If your query engine already emits deltas, you don’t need to go looking. The delta <em>is</em> the DOM mutation, modulo translation. <code class="language-plaintext highlighter-rouge">+1 (card7, ...)</code> is an <code class="language-plaintext highlighter-rouge">insertBefore</code>. <code class="language-plaintext highlighter-rouge">-1 (card3, ...)</code> is a <code class="language-plaintext highlighter-rouge">removeChild</code>. No shadow tree, no reconciliation pass, no diffing something against itself.</p>
+
+<h3 id="the-part-where-it-gets-hard">The part where it gets hard</h3>
+
+<p>I have to be honest about where the elegance runs out, because this is the bit that took the longest and it’s the bit nobody writes about.</p>
+
+<p>Consider renaming a card. Relationally, that’s a retraction and an assertion:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>-1  (card7, "Buy milk")
++1  (card7, "Buy oat milk")
+</code></pre></div></div>
+
+<p>Applied literally, that is: remove the DOM node, create a new one, insert it. Which is <em>correct</em>, in the sense that the resulting HTML is right. It is also a disaster, because along the way you have destroyed:</p>
+
+<ul>
+  <li>the text cursor, if the user was editing that field</li>
+  <li>the selection</li>
+  <li>in-progress IME composition, so good luck typing Japanese</li>
+  <li>the drag you were in the middle of</li>
+  <li>any CSS transition, which now restarts</li>
+  <li>scroll position, focus, and every other piece of state that lives on the node rather than in your data</li>
+</ul>
+
+<p>The DOM is not a pure function of your state. It’s a pure function of your state <em>plus</em> a pile of user-agent state attached to specific node identities, and node identity is exactly what a naive delta application destroys.</p>
+
+<p>So the runtime needs a classifier that looks at a batch of deltas and recognizes that a <code class="language-plaintext highlighter-rouge">-1</code> and a <code class="language-plaintext highlighter-rouge">+1</code> <strong>on the same entity key</strong> are not a removal and an insertion, they’re an <em>update</em> — and fuses them into a single mutation on the surviving node. Get that right and the whole approach works. Get it wrong and you have built a framework that loses your cursor, which is to say you have built nothing.</p>
+
+<p>This is implemented and tested in <a href="https://github.com/evdc/rex">Rex</a>, the current iteration. The acceptance tests are the boring ones that matter: retitling a card preserves the DOM node <em>and</em> the focus inside it; dragging a card between lists reuses the same node rather than recreating it; deleting a list with twenty cards is one <code class="language-plaintext highlighter-rouge">removeChild</code>, not twenty-one. Those tests are, in a real sense, the thesis of this whole project — everything above is philosophy until the cursor stays put.</p>
+
+<h2 id="part-5-one-mechanism-several-miracles">Part 5: One Mechanism, Several Miracles</h2>
+
+<p>Once you have “derived facts that get retracted when their justification goes away,” some things that are usually separate subsystems collapse into each other.</p>
+
+<p>A component unmounts because the query that produced it no longer produces it. Fine — that’s just retraction. But now: what if that component had started an HTTP request?</p>
+
+<p>In most frameworks, cancelling in-flight work on unmount is a separate concern with its own API, its own footguns, and its own genre of bug where you <code class="language-plaintext highlighter-rouge">setState</code> on a component that isn’t there anymore. In this model it’s the <em>same operation</em>. The request was justified by a derived fact; the fact was retracted; therefore the request is retracted; therefore it’s cancelled. Cleanup isn’t a lifecycle hook you have to remember to write. It’s what retraction already means.</p>
+
+<p>The design I’m working toward separates a retractable <strong>intent</strong> (“someone wants this GET to happen”) from an irreversible <strong>outcome</strong> (“this POST was committed, and no amount of re-derivation un-charges the credit card”). Intents flow backward when their justification dies; outcomes don’t, and the boundary between them is where the real difficulty lives.</p>
+
+<p>I want to flag clearly that <strong>this part is designed and not built.</strong> Parts 1 through 4 exist and run. Part 5 is a spec and an argument. It’s the piece I’d most like to be right about and the piece most likely to embarrass me.</p>
+
+<h2 id="part-6-the-same-trick-downstairs">Part 6: The Same Trick, Downstairs</h2>
+
+<p>Everything above is about the client. The identical move works on the other side of the network, and I’ve been building that too, as <a href="https://github.com/evdc/firmament26">Firmament</a>: describe your domain as an ontology — entities, actions, policies, queries, workflows — and let a compiler lower it onto the boring components every backend has anyway (state, workers, queues, endpoints).</p>
+
+<p>The framing I like is that a backend has a front end, a middle end, and a back end, exactly like a compiler does. Your domain model is the source language. The component topology is the IR. A monolith with one Postgres is one lowering of that IR; a distributed mesh is another lowering of <em>the same IR</em>, and the fact that we currently rewrite the entire application to move between them is an accident of tooling, not a law of nature.</p>
+
+<p>This one is, I’ll admit, downstream of spending a decade in data platform engineering and getting tired of writing the same pipeline for the fifth time with different YAML.</p>
+
+<h2 id="prior-art">Prior Art</h2>
+
+<p>I owe a large debt here, and the honest thing to say is that almost every individual idea in this post belongs to someone else. The contribution I’m claiming is the assembly, and specifically Part 4.</p>
+
+<p><strong>The direct ancestor:</strong> <a href="https://curtclifton.net/papers/MoseleyMarks06a.pdf"><em>Out of the Tar Pit</em></a> (Moseley &amp; Marks, 2006) — accidental vs. essential complexity, and “functional relational programming” as the prescription. This post is, more or less, an attempt to actually build the thing that paper describes and then declines to build.</p>
+
+<p><strong>The ones who tried before:</strong> <a href="https://witheve.com">Eve</a> is the most serious attempt at a relational end-user language, and its <a href="http://incidentalcomplexity.com/">postmortem</a> is required reading for anyone tempted down this road — including, especially, me. <a href="https://riffle.systems/essays/prelude/">Riffle</a> makes the “your UI state should be in a database” argument well. <a href="https://mint-lang.com">Mint</a> and <a href="https://elm-lang.org">Elm</a> are where the <em>feel</em> of the surface language comes from.</p>
+
+<p><strong>The engines:</strong> <a href="https://github.com/TimelyDataflow/differential-dataflow">Differential Dataflow</a> and Naiad (McSherry et al.); <a href="https://www.vldb.org/pvldb/vol16/p1601-budiu.pdf">DBSP</a> (Budiu et al.) and <a href="https://www.feldera.com/">Feldera</a>; <a href="https://materialize.com/">Materialize</a>; <a href="https://jon.thesquareplanet.com/papers/phd-thesis.pdf">Noria</a> (Gjengset’s thesis, which is about exactly the “web app as materialized view” idea); Skip; and on the finer-grained end, <a href="http://adapton.org/">Adapton</a> and Jane Street’s Incremental.</p>
+
+<p><strong>The current wave</strong>, which did not exist in this density when I started and which I’m genuinely glad to see: <a href="https://electric-sql.com/">Electric SQL</a>, <a href="https://zero.rocicorp.dev/">Zero</a>, <a href="https://livestore.dev/">LiveStore</a>, <a href="https://www.convex.dev/">Convex</a>, <a href="https://www.triplit.dev/">Triplit</a>, <a href="https://jazz.tools/">Jazz</a>. Several of these are converging on the same conclusions from the sync direction rather than the language direction.</p>
+
+<p><strong>The relational-time question:</strong> <a href="https://bloom-lang.net/">Dedalus and Bloom</a> (Hellerstein et al.), as mentioned in Part 2.</p>
+
+<p><strong>And the necessary corrective:</strong> Jamie Brandon’s <a href="https://www.scattered-thoughts.net/writing/against-sql/"><em>Against SQL</em></a>, which will disabuse you of any notion that “just use the relational model” means “just use SQL.” The relational model is great. SQL is a particular and quite bad encoding of it, and a lot of people’s allergy to the former is really an allergy to the latter.</p>
+
+<h2 id="questions">Questions</h2>
+
+<h4 id="q-what-about-llms-isnt-language-design-pointless-now">Q. What about LLMs? Isn’t language design pointless now?</h4>
+
+<p>The two versions of this objection I see are:</p>
+
+<ol>
+  <li>LLMs handle complexity for you. We all program in English now; nobody’s going to bother learning YourEsotericLanguage.</li>
+  <li>LLMs are trained on languages with enormous corpora. Claude is great at TypeScript and will be useless at YourEsotericLanguage.</li>
+</ol>
+
+<p>I’m skeptical of the first and I think the second is real but overstated.</p>
+
+<p>On the first: an LLM <em>could</em> write x86 assembly directly from your English description and skip these silly high-level languages entirely. So why have Python? Because even though Claude is unquestionably better at assembly than I am, “write me a script to fetch emails” has a much higher success rate in Python than in assembly. Abstraction is not a crutch for weak minds; it’s a mechanism for making correctness checkable at a useful granularity, and that’s as valuable to a model as to a person. LLMs struggle with complexity in recognizably human ways, because they were trained on us.</p>
+
+<p>But here’s the version of the argument I’ve come to think is actually the strong one: <strong>the binding constraint on machine-generated code is verification, not generation.</strong></p>
+
+<p>Generation is now nearly free. What’s expensive is knowing the output is correct, and being able to change it later without breaking something. If your job has shifted from writing code to reviewing code — and mine has, substantially — then a language where the <em>compiler</em> proves more is worth more, not less. Every property the type system establishes is a property neither of us has to check by reading. That’s a straightforward increase in the value of static guarantees, and it cuts exactly against the “languages don’t matter now” position.</p>
+
+<p>There’s a token-economics argument too, which is less philosophically interesting but pays rent: a concise declarative spec burns fewer tokens than the imperative expansion of the same intent, both to write and to re-read on every subsequent turn. As of 2026 the “throw unlimited context at it” era is visibly ending — providers are tightening limits and raising per-token prices, and developers are rediscovering that <a href="https://github.com/juliusbrussee/caveman">conserving tokens is good actually</a>. Concise, checkable, declarative is the right shape for that world.</p>
+
+<p>On the second objection — the training-data problem — I’ll concede more than I used to. It is real, and it’s the most legitimate criticism of this entire project. Models <em>are</em> much weaker on low-resource languages, and I have direct evidence: this codebase was substantially written by agents working from my designs and hand-written syntax sketches, and the difference between asking a model to write the Rust engine versus asking it to write a program in my own language is not subtle.</p>
+
+<p>The mitigation I’ve landed on is that if models are part of your language’s audience, you should <em>ship documentation as a build artifact</em> rather than as prose you hope gets scraped. Firmament has a <code class="language-plaintext highlighter-rouge">firmament context</code> command that emits a grounding pack — the vocabulary, the grammar, the domain model, and the rules the compiler will enforce — sized to drop into a context window. It works considerably better than I expected. I think “what a language owes the model” is going to be a real design discipline within a couple of years, and I’d like to write that post separately.</p>
+
+<h4 id="q-isnt-this-just-a-database-or-react-with-extra-steps">Q. Isn’t this just a database? Or React with extra steps?</h4>
+
+<p>It’s a database in the sense that it takes the relational model seriously, and not in the sense that you talk to it over a socket and it’s someone else’s problem. The central claim is that the boundary we’ve drawn — data over there behind a query language, logic in the middle in a general-purpose language, UI over here in a third paradigm, with serialization and cache invalidation taped across both seams — is not a natural boundary. It’s where the tools happened to stop.</p>
+
+<h4 id="q-why-dont-you-just-go-outside">Q. Why don’t you just go outside?</h4>
+
+<p>I dunno. I think I’m cursed.</p>
+
+<h2 id="what-actually-exists">What Actually Exists</h2>
+
+<p>In the interest of not overselling: the current state of things, honestly.</p>
+
+<ul>
+  <li><strong><a href="https://github.com/evdc/rex">Rex</a></strong> — the current and hopefully final iteration. Relational core, DBSP-style incremental engine compiled to WASM, and the delta-to-DOM layer described in Part 4. A Kanban app is written entirely in it, compiler-generated, passing the node-identity tests. Effects (Part 5) and persistence are next.</li>
+  <li><strong><a href="https://github.com/evdc/firmament26">Firmament</a></strong> — the Part 6 story. Ontology compiler, migrations, workflows, live queries, all running against Postgres.</li>
+  <li><strong><a href="https://github.com/evdc/elysium26">Elysium</a></strong> — the previous iteration, and the one that proved the whole shape end to end before I understood it well enough to build it properly. Frozen, but it’s where most of the lessons came from.</li>
+  <li>Several earlier attempts, in the ruins beneath.</li>
+</ul>
+
+<p>The honest summary is that Parts 1 through 4 work and I can show you; Parts 5 and 6 are further along as arguments than as software.</p>
+
+<hr />
+
+<p>If you’ve read this far, I’d genuinely like to hear where you think it’s wrong. The failure modes of this idea are well documented — Eve went down swinging at almost exactly this — and I’d rather find out early which specific wall I’m walking toward.</p>
+
+<hr />
+
+<p><strong>Footnotes</strong></p>
+
+<div class="footnotes" role="doc-endnotes">
+  <ol>
+    <li id="fn:recap" role="doc-endnote">
+      <p>At considerable length, in fact — <a href="/blog/css-query">“CSS As A Query Language”</a> works through the CSS-to-Datalog version of this argument in detail. It’s self-contained, and it is not required reading for this one. <a href="#fnref:recap" class="reversefootnote" role="doc-backlink">&#8617;</a></p>
+    </li>
+  </ol>
+</div>
+
+      </div>
+    </article>
+  </div>
+</body>
+</html>
