@@ -1,47 +1,59 @@
 <!doctype html>
 <html lang="en">
   <head>
-    <meta charset="UTF-8" />
+    <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Elysium Playground</title>
-    <script type="module" crossorigin src="/playground/assets/index-D--QheyL.js"></script>
-    <link rel="stylesheet" crossorigin href="/playground/assets/index-h2gew5gT.css">
+    <title>Rex Playground</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap"
+    />
+    <script type="module" crossorigin src="./assets/index-GD-cl-Tu.js"></script>
+    <link rel="stylesheet" crossorigin href="./assets/index-DO4fBKkm.css">
   </head>
   <body>
-    <nav class="site-nav">
-      <a href="/">← evdc.me</a>
-    </nav>
-    <div id="app">
-      <main class="page">
-        <header class="header">
-          <div>
-            <h1>Elysium Playground</h1>
-            <p class="subtitle">Edit source, compile in-browser, and render the root view.</p>
-          </div>
-          <div class="controls">
-            <button id="reset-button" type="button">Reset</button>
-            <button id="compile-button" class="primary" type="button">Compile</button>
-          </div>
-        </header>
+    <nav class="site-nav"><a href="/">← evdc.me</a></nav>
 
-        <section class="layout">
-          <article class="panel">
-            <div class="panel-header">Source</div>
-            <div id="editor"></div>
-            <div id="status" class="status-ok">Ready.</div>
-          </article>
+    <header class="bar">
+      <h1>Rex playground</h1>
+      <label class="picker">
+        <span>Example</span>
+        <select id="example"></select>
+      </label>
+      <span id="blurb" class="blurb"></span>
+      <span class="spacer"></span>
+      <button id="reset" type="button" title="Discard your edits to this example">Reset</button>
+      <button id="restart" type="button" class="primary" title="Restart the program from boot">Restart</button>
+    </header>
 
-          <article class="panel">
-            <div class="panel-header">Preview</div>
-            <div id="preview-root"></div>
-            <div class="panel-header">
-              <span>Inspector</span>
-              <button id="clear-trace-button" type="button">Clear</button>
-            </div>
-            <pre id="trace-log" style="max-height: 240px; overflow: auto; margin: 0; padding: 12px;"></pre>
-          </article>
-        </section>
-      </main>
-    </div>
+    <main class="workspace">
+      <section class="pane" aria-label="Source">
+        <div class="tabs" id="file-tabs">
+          <button type="button" data-file="rex" aria-selected="true">app.rex</button>
+          <button type="button" data-file="css" aria-selected="false">style.css</button>
+        </div>
+        <div id="editor"></div>
+        <div id="status" role="status"></div>
+      </section>
+      <section class="pane" aria-label="Preview">
+        <div class="tabs"><span class="pane-title">Preview</span></div>
+        <div id="preview"></div>
+      </section>
+    </main>
+
+    <div id="splitter" role="separator" aria-orientation="horizontal" title="Drag to resize"></div>
+
+    <section class="devtools" aria-label="Developer tools">
+      <div class="tabs" id="tool-tabs">
+        <button type="button" data-tool="events" aria-selected="true">Events <span id="event-count" class="count"></span></button>
+        <button type="button" data-tool="data" aria-selected="false">Data</button>
+        <span class="spacer"></span>
+        <span class="hint">DOM mutations are counted with a MutationObserver; writes to properties such as an input's value are not mutations.</span>
+      </div>
+      <div id="events-panel" class="tool-panel"></div>
+      <div id="data-panel" class="tool-panel" hidden></div>
+    </section>
+
   </body>
 </html>
