@@ -5,7 +5,7 @@
 
 :root {
   --bg: #ece2c8; --bg-2: #e3d7b8; --ink: #1f1a14; --ink-soft: #5b4f3d;
-  --red: #8c3a2b; --gold: #a98429;
+  --red: #8c3a2b; --green: #01511c; --gold: #a98429;
   --vig: rgba(110, 80, 30, .18); --grain: .55; --grain-blend: multiply;
   --f-display: "IM Fell French Canon", "IM Fell English", Georgia, serif;
   --f-head: "IM Fell Double Pica", "IM Fell English", Georgia, serif;
@@ -18,7 +18,7 @@
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
     --bg: #15120e; --bg-2: #1e1a14; --ink: #e9dec3; --ink-soft: #b3a88e;
-    --red: #cf8068; --gold: #d4ad55;
+    --red: #cf8068; --green: #7fae8c; --gold: #d4ad55;
     --vig: rgba(0, 0, 0, .45); --grain: .28; --grain-blend: screen;
     color-scheme: dark;
   }
@@ -26,7 +26,7 @@
 
 :root[data-theme="dark"] {
   --bg: #15120e; --bg-2: #1e1a14; --ink: #e9dec3; --ink-soft: #b3a88e;
-  --red: #cf8068; --gold: #d4ad55;
+  --red: #cf8068; --green: #7fae8c; --gold: #d4ad55;
   --vig: rgba(0, 0, 0, .45); --grain: .28; --grain-blend: screen;
   color-scheme: dark;
 }
@@ -67,6 +67,7 @@ body::after {
 
 /* --- masthead --- */
 header {
+  position: relative;
   text-align: center;
   padding-top: clamp(2.5rem, 6vw, 4rem);
   padding-bottom: 1.6rem;
@@ -74,16 +75,48 @@ header {
   border-bottom: 3px double var(--ink);
 }
 
+/* the moon: a hatched crescent, upper left */
 header::before {
   content: "";
-  display: block;
-  width: 56px;
-  height: 56px;
-  margin: 0 auto .9rem;
-  background: var(--red);
-  -webkit-mask: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'><path d='M13 28a7 7 0 0 1 14 0z'/><path d='M20 4v4M7.5 8.5l2.8 2.8M32.5 8.5l-2.8 2.8M3 19h4M33 19h4M4 28h32' stroke='black' stroke-width='1.6' stroke-linecap='round' fill='none'/></svg>") center / contain no-repeat;
-          mask: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'><path d='M13 28a7 7 0 0 1 14 0z'/><path d='M20 4v4M7.5 8.5l2.8 2.8M32.5 8.5l-2.8 2.8M3 19h4M33 19h4M4 28h32' stroke='black' stroke-width='1.6' stroke-linecap='round' fill='none'/></svg>") center / contain no-repeat;
+  position: absolute;
+  --d: 40px;
+  top: 5.2rem;
+  left: .6rem;
+  width: var(--d);
+  height: var(--d);
+  border-radius: 50%;
+  background:
+    repeating-linear-gradient(-45deg, color-mix(in srgb, var(--ink) 60%, transparent) 0 1px, transparent 1px 4px),
+    color-mix(in srgb, var(--ink-soft) 14%, transparent);
+  /* a full disc, minus an offset disc: what is left is the crescent */
+  -webkit-mask: radial-gradient(circle closest-side, #000 97%, transparent 100%),
+                radial-gradient(circle calc(var(--d) * .38) at 78% 22%, transparent calc(var(--d) * .36), #000 calc(var(--d) * .38));
+  -webkit-mask-composite: source-in;
+          mask: radial-gradient(circle closest-side, #000 97%, transparent 100%),
+                radial-gradient(circle calc(var(--d) * .38) at 78% 22%, transparent calc(var(--d) * .36), #000 calc(var(--d) * .38));
+          mask-composite: intersect;
 }
+
+/* the sun: an engraved disc with rays, upper right, turning very slowly */
+header::after {
+  content: "";
+  position: absolute;
+  top: 4.75rem;
+  right: .6rem;
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  background:
+    radial-gradient(circle closest-side, color-mix(in srgb, var(--gold) 85%, var(--bg)) 0 33%, transparent 34%),
+    radial-gradient(circle closest-side, transparent 0 33.5%, var(--ink) 34% 35.5%, transparent 36.5%),
+    radial-gradient(circle closest-side, color-mix(in srgb, var(--gold) 28%, transparent) 36%, transparent 100%),
+    repeating-conic-gradient(from 0deg, var(--gold) 0 1.6deg, transparent 1.6deg 15deg);
+  -webkit-mask: radial-gradient(circle closest-side, #000 0 58%, transparent 100%);
+          mask: radial-gradient(circle closest-side, #000 0 58%, transparent 100%);
+  animation: turn 240s linear infinite;
+}
+
+@keyframes turn { to { rotate: 360deg; } }
 
 header h1 {
   font-family: var(--f-display);
@@ -149,6 +182,8 @@ section > h2::before {
   color: var(--red);
 }
 
+section:nth-of-type(even) > h2::before { color: var(--green); }
+
 h2 {
   font-family: var(--f-head);
   font-weight: 400;
@@ -193,8 +228,8 @@ a {
 }
 
 a:hover {
-  color: var(--red);
-  text-decoration-color: var(--red);
+  color: var(--green);
+  text-decoration-color: var(--green);
 }
 
 :focus-visible { outline: 2px solid var(--red); outline-offset: 3px; }
@@ -330,7 +365,7 @@ hr::after {
   font-size: 3.7em;
   line-height: .8;
   padding: .05em .1em 0 0;
-  color: var(--red);
+  color: var(--green);
 }
 
 .post-content blockquote {
@@ -362,8 +397,11 @@ hr::after {
 @media (max-width: 520px) {
   .nav-links { font-size: .95rem; gap: .2rem 1rem; }
   .project-name { font-size: 1.5rem; }
+  header::before { --d: 30px; top: 3rem; left: .2rem; }
+  header::after { width: 44px; height: 44px; top: 2.6rem; right: .2rem; }
 }
 
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
+  header::after { animation: none; }
 }
