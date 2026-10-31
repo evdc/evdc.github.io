@@ -6,6 +6,7 @@
 :root {
   --bg: #ece2c8; --bg-2: #e3d7b8; --ink: #1f1a14; --ink-soft: #5b4f3d;
   --red: #8c3a2b; --green: #01511c; --gold: #a98429;
+  --sky-day: #f1e9d0; --sky-night: #c2b58f;
   --vig: rgba(110, 80, 30, .18); --grain: .55; --grain-blend: multiply;
   --f-display: "IM Fell French Canon", "IM Fell English", Georgia, serif;
   --f-head: "IM Fell Double Pica", "IM Fell English", Georgia, serif;
@@ -19,6 +20,7 @@
   :root:not([data-theme="light"]) {
     --bg: #15120e; --bg-2: #1e1a14; --ink: #e9dec3; --ink-soft: #b3a88e;
     --red: #cf8068; --green: #7fae8c; --gold: #d4ad55;
+    --sky-day: #2b261c; --sky-night: #0b0907;
     --vig: rgba(0, 0, 0, .45); --grain: .28; --grain-blend: screen;
     color-scheme: dark;
   }
@@ -27,13 +29,14 @@
 :root[data-theme="dark"] {
   --bg: #15120e; --bg-2: #1e1a14; --ink: #e9dec3; --ink-soft: #b3a88e;
   --red: #cf8068; --green: #7fae8c; --gold: #d4ad55;
+  --sky-day: #2b261c; --sky-night: #0b0907;
   --vig: rgba(0, 0, 0, .45); --grain: .28; --grain-blend: screen;
   color-scheme: dark;
 }
 
 *, *::before, *::after { box-sizing: border-box; }
 
-html { scroll-behavior: smooth; }
+html { scroll-behavior: smooth; overflow-x: clip; }
 
 body {
   margin: 0;
@@ -65,14 +68,57 @@ body::after {
   counter-reset: chapter;
 }
 
-/* --- masthead --- */
+/* --- masthead: a full-width engraved sky --- */
+@property --sun-a {
+  syntax: "<angle>";
+  inherits: true;
+  initial-value: 90deg;
+}
+
+/* The sun and moon ride one orbit around the centre of the horizon (the rule under the
+   masthead), half a turn apart. The sky tints day to night as the sun crosses the sky,
+   and the rays and rings are engraved in the background. */
 header {
+  --rx: min(40vw, 340px);
+  --ry: 240px;
+  --sun-a: 90deg;
+  --moon-a: calc(var(--sun-a) + 180deg);
+  --sun-xy: calc(cos(var(--sun-a)) * var(--rx)) calc(sin(var(--sun-a)) * var(--ry) * -1);
+  --moon-xy: calc(cos(var(--moon-a)) * var(--rx)) calc(sin(var(--moon-a)) * var(--ry) * -1);
+  --day: calc(50% + 50% * sin(var(--sun-a)));
+  --stars: color-mix(in srgb, var(--ink) calc(100% - var(--day)), transparent);
+
   position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  width: 100vw;
+  margin-left: calc(50% - 50vw);
   text-align: center;
   padding-top: clamp(2.5rem, 6vw, 4rem);
   padding-bottom: 1.6rem;
   margin-bottom: 3rem;
   border-bottom: 3px double var(--ink);
+  background-color: color-mix(in srgb, var(--sky-day) var(--day), var(--sky-night));
+  background-image:
+    radial-gradient(circle 2px at 8% 30%, var(--stars) 1px, transparent 2px),
+    radial-gradient(circle 1.6px at 17% 12%, var(--stars) 1px, transparent 1.6px),
+    radial-gradient(circle 2px at 26% 22%, var(--stars) 1px, transparent 2px),
+    radial-gradient(circle 1.6px at 36% 8%, var(--stars) 1px, transparent 1.6px),
+    radial-gradient(circle 2px at 47% 16%, var(--stars) 1px, transparent 2px),
+    radial-gradient(circle 1.6px at 63% 10%, var(--stars) 1px, transparent 1.6px),
+    radial-gradient(circle 2px at 71% 24%, var(--stars) 1px, transparent 2px),
+    radial-gradient(circle 1.6px at 79% 14%, var(--stars) 1px, transparent 1.6px),
+    radial-gradient(circle 2px at 89% 30%, var(--stars) 1px, transparent 2px),
+    radial-gradient(circle 1.6px at 95% 12%, var(--stars) 1px, transparent 1.6px),
+    radial-gradient(ellipse 45% 100% at 50% 100%, color-mix(in srgb, var(--gold) calc(var(--day) * .4), transparent), transparent 100%),
+    repeating-conic-gradient(from -90deg at 50% 100%, color-mix(in srgb, var(--ink) 9%, transparent) 0 .3deg, transparent .3deg 5deg),
+    repeating-radial-gradient(circle at 50% 100%, color-mix(in srgb, var(--ink) 8%, transparent) 0 1px, transparent 1px 30px);
+  animation: cycle 90s linear infinite;
+}
+
+@keyframes cycle {
+  from { --sun-a: 90deg; }
+  to { --sun-a: 450deg; }
 }
 
 /* the moon: a hatched crescent, upper left */
@@ -80,8 +126,11 @@ header::before {
   content: "";
   position: absolute;
   --d: 40px;
-  top: 5.2rem;
-  left: .6rem;
+  z-index: -1;
+  left: 50%;
+  bottom: calc(var(--d) / -2);
+  margin-left: calc(var(--d) / -2);
+  translate: var(--moon-xy);
   width: var(--d);
   height: var(--d);
   border-radius: 50%;
@@ -101,8 +150,11 @@ header::before {
 header::after {
   content: "";
   position: absolute;
-  top: 4.75rem;
-  right: .6rem;
+  z-index: -1;
+  left: 50%;
+  bottom: -30px;
+  margin-left: -30px;
+  translate: var(--sun-xy);
   width: 60px;
   height: 60px;
   border-radius: 50%;
@@ -393,15 +445,59 @@ hr::after {
   font-size: inherit;
 }
 
+/* --- slim nav: slides in once the masthead has scrolled away (see topbar.js) --- */
+.topbar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 90;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  gap: .2rem 1.2rem;
+  padding: .5rem clamp(16px, 4vw, 48px);
+  background: color-mix(in srgb, var(--bg) 92%, transparent);
+  backdrop-filter: blur(6px);
+  border-bottom: 3px double var(--ink);
+  transform: translateY(-101%);
+  transition: transform .3s ease;
+}
+
+.topbar.is-visible { transform: none; }
+
+.topbar a {
+  color: var(--ink);
+  text-decoration: none;
+}
+
+.topbar a:hover { color: var(--green); }
+
+.topbar-brand {
+  font-family: var(--f-display);
+  font-size: 1.5rem;
+  line-height: 1.2;
+}
+
+.topbar-links {
+  display: flex;
+  gap: 1.2rem;
+  font-family: var(--f-sc);
+  letter-spacing: .12em;
+  font-size: 1rem;
+}
+
 /* --- small screens --- */
 @media (max-width: 520px) {
   .nav-links { font-size: .95rem; gap: .2rem 1rem; }
   .project-name { font-size: 1.5rem; }
-  header::before { --d: 30px; top: 3rem; left: .2rem; }
-  header::after { width: 44px; height: 44px; top: 2.6rem; right: .2rem; }
+  header { --rx: 42vw; --ry: 170px; }
+  header::before { --d: 30px; }
+  header::after { width: 44px; height: 44px; }
 }
 
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
-  header::after { animation: none; }
+  header, header::after { animation: none; }
 }

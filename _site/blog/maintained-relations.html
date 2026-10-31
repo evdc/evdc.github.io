@@ -8,6 +8,14 @@
   <link rel="stylesheet" href="/syntax.css">
 </head>
 <body>
+  <nav class="topbar" aria-label="Site">
+    <a class="topbar-brand" href="/">evdc.me</a>
+    <div class="topbar-links">
+      <a href="https://github.com/evdc">GitHub</a>
+      <a href="/blog.html">Blog</a>
+      <a href="/readings.html">Reading list</a>
+    </div>
+  </nav>
   <div class="container">
     <header>
       <h1>evdc.me</h1>
@@ -49,7 +57,7 @@
 
 <p><strong>There are Things.</strong> In CSS they’re HTML elements. In an entity-component-system game engine they’re entities — players, monsters, bullets, powerups, flying sharks. In SQL they’re rows. In Datalog they’re atoms. In your app they’re the domain objects you’d draw on a whiteboard in a meeting with boxes and arrows and stuff, the way we’ve been doing since the 80s.</p>
 
-<p><strong>We can describe Sets of related Things.</strong> CSS calls this a selector. SQL calls it a <code class="language-plaintext highlighter-rouge">WHERE</code> clause. Datalog calls it a rule body. An ECS calls it a query over component types. They are all the same move: <em>name a set by what its members have in common, rather than by enumerating them.</em></p>
+<p><strong>We can describe Sets of related Things.</strong> CSS calls this a selector. SQL calls it a <code class="language-plaintext highlighter-rouge">WHERE</code> clause. Datalog calls it a rule body. An ECS calls it a query over component types. They all are, basically: <em>name a set by what its members have in common, rather than by enumerating them.</em></p>
 
 <p><strong>We can do stuff to those Sets.</strong> Set properties on all of them at once. Delete them. Derive new Things from them. CSS declarations, SQL <code class="language-plaintext highlighter-rouge">UPDATE</code>, Datalog rule heads, ECS systems.</p>
 
@@ -57,7 +65,7 @@
 
 <h2 id="part-2-time-ruins-everything">Part 2: Time Ruins Everything</h2>
 
-<p>“data that changes over time” comes in and kicks over all our nice clean little models. All my homies hate time-varying mutable state.</p>
+<p>“Data that changes over time” comes in and kicks over all our nice clean little models. All my homies hate time-varying mutable state.</p>
 
 <p>Suppose we have the set of all Things that are Red and the set of all Things that are Blue. And suppose we write a rule:</p>
 
@@ -68,7 +76,7 @@
 
 <p>Now every formerly-Red Thing is Blue. So the rule matches nothing, so it doesn’t run, so… does it stay Blue? Does the rule notice that its own precondition is now false and undo itself? If another rule says “for all Things that are Blue, make them Red,” do we flicker forever?</p>
 
-<p>I raised exactly this in the CSS post and cheerfully deferred it:</p>
+<p>I raised exactly this in the CSS post and then just sort of hand waved it away:</p>
 
 <blockquote>
   <p>What does it mean to say “for all elements with color red, their color is blue”? Does it render red for a second and then flicker to blue? Does it flicker back and forth? Does it just say this is a contradiction, like 3 = 4, and give up?</p>
@@ -76,7 +84,7 @@
   <p>There’s a way to answer this. We’ll get there.</p>
 </blockquote>
 
-<p>So let’s try to get there. The answer is that <strong>rules are not eternal truths, they are things that happen at a time</strong>, and you have to say so explicitly.</p>
+<p>So let’s try to get there. The answer is that <strong>rules are not eternal truths, they are things that happen at a time</strong>.</p>
 
 <p>The model needs a <em>cycle</em>:</p>
 
@@ -88,9 +96,9 @@
 
 <p>That single discipline dissolves the paradox. “For all Red things, make them Blue” reads Red-ness from the <em>before</em> state and writes Blue-ness to the <em>after</em> state. It doesn’t flicker, and it doesn’t chase its own tail, because the thing it’s reading and the thing it’s writing are separated in time by construction. If you want an oscillator you have to ask for one across two steps, which is honest.</p>
 
-<p>This is not exotic. It’s a render frame in a browser. It’s a tick in a game loop. It’s a transaction in a database. It’s — sort of, squintingly, with several asterisks — a render pass in React. Every system in this shape reinvents the step, usually informally and usually incorrectly around the edges. The proposal is to make it the load-bearing primitive instead of an emergent property of the framework’s internals.</p>
+<p>This isn’t purely academic. It’s hiding inside a render frame in a browser, a tick in a game loop, a transaction in a database. It’s — sort of, squintingly, with several asterisks — a render pass in React. Every system in this shape reinvents the step, usually informally and usually incorrectly around the edges. The proposal is to make it the load-bearing primitive instead of an emergent property of the framework’s internals.</p>
 
-<p>There’s real prior art on the “put time in the relational language” problem specifically: Hellerstein’s <a href="https://bloom-lang.net/">Dedalus and Bloom</a> are the serious version of this idea, and if the above felt hand-wavy, that’s because it <em>is</em>, and they aren’t, so check there if you want the academic level of treatment that isn’t someone’s personal blog.</p>
+<p>There’s real prior art on the “put time in the relational language” problem specifically: Hellerstein et al’s <a href="https://bloom-lang.net/">Dedalus and Bloom</a> are the serious version of this idea, and if the above felt hand-wavy, that’s because it <em>is</em>, and they aren’t, so check there if you want the academic level of treatment that isn’t someone’s personal blog.</p>
 
 <h2 id="part-3-doing-it-all-again-is-wasteful">Part 3: Doing It All Again Is Wasteful</h2>
 
@@ -104,7 +112,11 @@
 
 <p>The trick is to make <em>change itself</em> a first-class value. Instead of passing around “the set of Things,” you pass around “what’s different about the set of Things,” and every operator learns how to consume and produce differences.</p>
 
-<p>The representation that makes this work cleanly is a <strong>Z-set</strong>: a set where every element carries an integer weight. Weight <code class="language-plaintext highlighter-rouge">+1</code> means “this row is here.” Weight <code class="language-plaintext highlighter-rouge">-1</code> means “retract this row.” A change is just a Z-set:</p>
+<p>Enter a funy structure called a <strong>Z-set</strong>: a set where every element carries an integer “weight”, for “how many times is this element present”. Z-sets are a generalization of sets (in a set every row has weight 1), and a way of representing bags, aka multisets, aka SQL tables - an element with weight &gt;= 2 is repeated. Ok, so far, makes sense, right?</p>
+
+<p>Great, now since weights are integers, they can be <em>negative</em>. Wait, what? What the heck does a negative weight mean? “apple” is present in the set -1 times??</p>
+
+<p>Well, we just declare (by Fiat) that weight <code class="language-plaintext highlighter-rouge">-1</code> means “retract this row.” A change is just a Z-set:</p>
 
 <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>+1  (card7, "Buy milk")      -- inserted
 -1  (card3, "Call mom")      -- deleted
@@ -252,5 +264,6 @@ LLMs struggle with complexity in recognizably human ways, because they were trai
       </div>
     </article>
   </div>
+  <script src="/topbar.js" defer></script>
 </body>
 </html>

@@ -31,7 +31,7 @@ I've covered the first three bullets at length elsewhere, so here's the compress
 
 **There are Things.** In CSS they're HTML elements. In an entity-component-system game engine they're entities — players, monsters, bullets, powerups, flying sharks. In SQL they're rows. In Datalog they're atoms. In your app they're the domain objects you'd draw on a whiteboard in a meeting with boxes and arrows and stuff, the way we've been doing since the 80s.
 
-**We can describe Sets of related Things.** CSS calls this a selector. SQL calls it a `WHERE` clause. Datalog calls it a rule body. An ECS calls it a query over component types. They are all the same move: *name a set by what its members have in common, rather than by enumerating them.*
+**We can describe Sets of related Things.** CSS calls this a selector. SQL calls it a `WHERE` clause. Datalog calls it a rule body. An ECS calls it a query over component types. They all are, basically: *name a set by what its members have in common, rather than by enumerating them.*
 
 **We can do stuff to those Sets.** Set properties on all of them at once. Delete them. Derive new Things from them. CSS declarations, SQL `UPDATE`, Datalog rule heads, ECS systems.
 
@@ -39,7 +39,7 @@ Three languages that look nothing alike, doing the same three things. Enough sig
 
 ## Part 2: Time Ruins Everything
 
-"data that changes over time" comes in and kicks over all our nice clean little models. All my homies hate time-varying mutable state.
+"Data that changes over time" comes in and kicks over all our nice clean little models. All my homies hate time-varying mutable state.
 
 Suppose we have the set of all Things that are Red and the set of all Things that are Blue. And suppose we write a rule:
 
@@ -51,13 +51,13 @@ Fine. Run it. Now what?
 
 Now every formerly-Red Thing is Blue. So the rule matches nothing, so it doesn't run, so... does it stay Blue? Does the rule notice that its own precondition is now false and undo itself? If another rule says "for all Things that are Blue, make them Red," do we flicker forever?
 
-I raised exactly this in the CSS post and cheerfully deferred it:
+I raised exactly this in the CSS post and then just sort of hand waved it away:
 
 > What does it mean to say "for all elements with color red, their color is blue"? Does it render red for a second and then flicker to blue? Does it flicker back and forth? Does it just say this is a contradiction, like 3 = 4, and give up?
 >
 > There's a way to answer this. We'll get there.
 
-So let's try to get there. The answer is that **rules are not eternal truths, they are things that happen at a time**, and you have to say so explicitly.
+So let's try to get there. The answer is that **rules are not eternal truths, they are things that happen at a time**.
 
 The model needs a *cycle*:
 
@@ -67,9 +67,9 @@ The model needs a *cycle*:
 
 That single discipline dissolves the paradox. "For all Red things, make them Blue" reads Red-ness from the *before* state and writes Blue-ness to the *after* state. It doesn't flicker, and it doesn't chase its own tail, because the thing it's reading and the thing it's writing are separated in time by construction. If you want an oscillator you have to ask for one across two steps, which is honest.
 
-This is not exotic. It's a render frame in a browser. It's a tick in a game loop. It's a transaction in a database. It's — sort of, squintingly, with several asterisks — a render pass in React. Every system in this shape reinvents the step, usually informally and usually incorrectly around the edges. The proposal is to make it the load-bearing primitive instead of an emergent property of the framework's internals.
+This isn't purely academic. It's hiding inside a render frame in a browser, a tick in a game loop, a transaction in a database. It's — sort of, squintingly, with several asterisks — a render pass in React. Every system in this shape reinvents the step, usually informally and usually incorrectly around the edges. The proposal is to make it the load-bearing primitive instead of an emergent property of the framework's internals.
 
-There's real prior art on the "put time in the relational language" problem specifically: Hellerstein's [Dedalus and Bloom](https://bloom-lang.net/) are the serious version of this idea, and if the above felt hand-wavy, that's because it *is*, and they aren't, so check there if you want the academic level of treatment that isn't someone's personal blog.
+There's real prior art on the "put time in the relational language" problem specifically: Hellerstein et al's [Dedalus and Bloom](https://bloom-lang.net/) are the serious version of this idea, and if the above felt hand-wavy, that's because it *is*, and they aren't, so check there if you want the academic level of treatment that isn't someone's personal blog.
 
 ## Part 3: Doing It All Again Is Wasteful
 
@@ -83,7 +83,11 @@ So: don't recompute the answer. **Maintain** it.
 
 The trick is to make *change itself* a first-class value. Instead of passing around "the set of Things," you pass around "what's different about the set of Things," and every operator learns how to consume and produce differences.
 
-The representation that makes this work cleanly is a **Z-set**: a set where every element carries an integer weight. Weight `+1` means "this row is here." Weight `-1` means "retract this row." A change is just a Z-set:
+Enter a funy structure called a **Z-set**: a set where every element carries an integer "weight", for "how many times is this element present". Z-sets are a generalization of sets (in a set every row has weight 1), and a way of representing bags, aka multisets, aka SQL tables - an element with weight >= 2 is repeated. Ok, so far, makes sense, right?
+
+Great, now since weights are integers, they can be *negative*. Wait, what? What the heck does a negative weight mean? "apple" is present in the set -1 times?? 
+
+Well, we just declare (by Fiat) that weight `-1` means "retract this row." A change is just a Z-set:
 
 ```
 +1  (card7, "Buy milk")      -- inserted

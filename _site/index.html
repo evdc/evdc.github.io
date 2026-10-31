@@ -7,6 +7,14 @@
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
+  <nav class="topbar" aria-label="Site">
+    <a class="topbar-brand" href="/">evdc.me</a>
+    <div class="topbar-links">
+      <a href="https://github.com/evdc">GitHub</a>
+      <a href="/blog.html">Blog</a>
+      <a href="/readings.html">Reading list</a>
+    </div>
+  </nav>
   <div class="container">
     <header>
       <h1>evdc.me</h1>
@@ -18,7 +26,6 @@
         <span class="sep">·</span>
         <a href="readings.html">Reading list</a>
       </nav>
-      <div class="open-badge">↳ open to new roles in data infrastructure, inference, AI and systems engineering</div>
     </header>
 
     <section id="about">
@@ -29,15 +36,9 @@
       <ul>
         <li>Programming language design, declarative / query languages, relational data modeling, incremental view maintenance, db internals / vectorization, data oriented design, ...</li>
         <li>Distributed systems (particularly distributed data systems) - performance optimization, design principles, unusual theoretical approaches, etc.</li>
-        <li>LLM inference and serving: scheduling, batching, KV-cache management, quantization, graph compilation.</li>
         <li>Tools for Thought, end-user programming, "the computer as a bicycle for the mind", and how AI can help us out there</li>
       </ul>
       <p>I write about some of them <a href="/blog">here</a>.</p>
-      <p>
-        Lately I've been pulling these threads toward LLM inference. Serving systems involve a compiler + scheduler + <a href="https://martinfowler.com/bliki/TwoHardThings.html">cache invalidation</a>,
-        which is kind of what an IVM/distributed data system looks like too if you squint at it through a particular lens. Query planning, inference-graph optimizaiton, KV-cache reuse, etc. 
-        I'm looking for new roles at that intersection.
-      </p>
       <p>At heart, though, I just love building software that is clean, performant, innovative, and pleasant to use.</p>
     </section>
 
@@ -94,5 +95,6 @@
     </section>
 
   </div>
+  <script src="/topbar.js" defer></script>
 </body>
 </html>
